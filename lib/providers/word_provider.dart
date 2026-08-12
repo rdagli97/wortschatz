@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/constants/app_strings.dart';
 import '../models/word.dart';
 import '../services/database_service.dart';
 
@@ -34,7 +35,22 @@ class AddWordController extends Notifier<AddWordState> {
   Future<bool> addWord(Word word) async {
     state = state.copyWith(isSaving: true, errorMessage: null);
     try {
-      await ref.read(databaseServiceProvider).insertWord(word);
+      final db = ref.read(databaseServiceProvider);
+      final existingWords = await db.getWords();
+      // tam eşleşme (kelime metni birebir aynı) — "Zeit" ile "Hochzeit" gibi
+      // farklı kelimeleri birbirine karıştırmaz
+      final isDuplicate = existingWords.any(
+        (w) => w.word.trim().toLowerCase() == word.word.trim().toLowerCase(),
+      );
+      if (isDuplicate) {
+        state = state.copyWith(
+          isSaving: false,
+          errorMessage: AppStrings.duplicateWordError,
+        );
+        return false;
+      }
+
+      await db.insertWord(word);
       // Kelime listesini yenile (yeni kelime görünsün)
       ref.invalidate(wordsProvider);
       state = state.copyWith(isSaving: false);

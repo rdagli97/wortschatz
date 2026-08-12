@@ -4,7 +4,7 @@ import '../core/constants/app_sizes.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
 import '../widgets/home_menu_button.dart';
-import 'word_list_screen.dart';
+import 'word_categories_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -27,7 +27,7 @@ class HomeScreen extends StatelessWidget {
               accentColor: AppColors.primary,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const WordListScreen()),
+                MaterialPageRoute(builder: (_) => const WordCategoriesScreen()),
               ),
             ),
             const SizedBox(height: AppSizes.md),
@@ -43,6 +43,14 @@ class HomeScreen extends StatelessWidget {
               label: AppStrings.irregularVerbs,
               icon: Icons.shuffle,
               accentColor: AppColors.die,
+              enabled: false,
+              onTap: () {},
+            ),
+            const SizedBox(height: AppSizes.md),
+            HomeMenuButton(
+              label: AppStrings.conjunctions,
+              icon: Icons.link,
+              accentColor: AppColors.das,
               enabled: false,
               onTap: () {},
             ),

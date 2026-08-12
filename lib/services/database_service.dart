@@ -18,7 +18,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE words(
@@ -30,7 +30,9 @@ class DatabaseService {
             plural TEXT NOT NULL,
             exampleSentence TEXT NOT NULL,
             exampleTranslationEn TEXT NOT NULL,
-            exampleTranslationTr TEXT NOT NULL
+            exampleTranslationTr TEXT NOT NULL,
+            correctStreak INTEGER NOT NULL DEFAULT 0,
+            reviewCount INTEGER NOT NULL DEFAULT 0
           )
         ''');
 
@@ -38,6 +40,16 @@ class DatabaseService {
         final seedWords = _seedWords();
         for (final word in seedWords) {
           await db.insert('words', word.toMap());
+        }
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute(
+            'ALTER TABLE words ADD COLUMN correctStreak INTEGER NOT NULL DEFAULT 0',
+          );
+          await db.execute(
+            'ALTER TABLE words ADD COLUMN reviewCount INTEGER NOT NULL DEFAULT 0',
+          );
         }
       },
     );
@@ -60,6 +72,22 @@ class DatabaseService {
   Future<int> deleteWord(int id) async {
     final db = await _db;
     return await db.delete('words', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // UPDATE - tekrar sonucunu işle (doğru: streak +1, yanlış: streak 0'a döner)
+  Future<void> recordAnswer(int id, bool correct) async {
+    final db = await _db;
+    if (correct) {
+      await db.rawUpdate(
+        'UPDATE words SET reviewCount = reviewCount + 1, correctStreak = correctStreak + 1 WHERE id = ?',
+        [id],
+      );
+    } else {
+      await db.rawUpdate(
+        'UPDATE words SET reviewCount = reviewCount + 1, correctStreak = 0 WHERE id = ?',
+        [id],
+      );
+    }
   }
 
   // İlk açılışta yüklenecek başlangıç kelimeleri

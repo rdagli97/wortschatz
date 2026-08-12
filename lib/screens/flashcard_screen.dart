@@ -29,6 +29,16 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(flashcardControllerProvider);
+
+    if (state.isFinished) {
+      return Scaffold(
+        appBar: AppBar(title: const Text(AppStrings.practice)),
+        body: Center(
+          child: Text(AppStrings.practiceComplete, style: AppTextStyles.title),
+        ),
+      );
+    }
+
     final word = state.currentWord;
 
     return Scaffold(
@@ -55,33 +65,76 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
                     ),
                   ),
                   const SizedBox(height: AppSizes.md),
-                  // Sonraki butonu
+                  // Değerlendirme: kart çevrilince ❌ / ✅
                   SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: state.isLastCard
-                          ? null
-                          : () => ref
-                              .read(flashcardControllerProvider.notifier)
-                              .next(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: AppSizes.md),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                        ),
-                      ),
-                      child: Text(
-                        state.isLastCard
-                            ? AppStrings.practiceComplete
-                            : AppStrings.next,
-                        style: AppTextStyles.title.copyWith(color: Colors.white),
-                      ),
-                    ),
+                    height: 72,
+                    child: state.isRevealed
+                        ? Row(
+                            children: [
+                              Expanded(
+                                child: _AnswerButton(
+                                  icon: Icons.close_rounded,
+                                  color: AppColors.die,
+                                  onTap: () => ref
+                                      .read(flashcardControllerProvider.notifier)
+                                      .answer(false),
+                                ),
+                              ),
+                              const SizedBox(width: AppSizes.md),
+                              Expanded(
+                                child: _AnswerButton(
+                                  icon: Icons.check_rounded,
+                                  color: AppColors.das,
+                                  onTap: () => ref
+                                      .read(flashcardControllerProvider.notifier)
+                                      .answer(true),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Center(
+                            child: Text(
+                              AppStrings.tapToReveal,
+                              style: AppTextStyles.caption,
+                            ),
+                          ),
                   ),
                 ],
               ),
             ),
+    );
+  }
+}
+
+// Doğru/yanlış değerlendirme butonu (tinder tarzı ❌ / ✅)
+class _AnswerButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _AnswerButton({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: color.withValues(alpha: 0.15),
+      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+            border: Border.all(color: color, width: 2),
+          ),
+          alignment: Alignment.center,
+          child: Icon(icon, color: color, size: AppSizes.iconLg),
+        ),
+      ),
     );
   }
 }

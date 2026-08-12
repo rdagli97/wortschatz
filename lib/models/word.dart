@@ -1,3 +1,6 @@
+// Kelimenin öğrenilme durumu (correctStreak/reviewCount'tan türetilir)
+enum WordCategory { newWord, difficult, wellLearned }
+
 class Word {
   final int? id;
   final String article;              // der / die / das
@@ -8,6 +11,8 @@ class Word {
   final String exampleSentence;      // Das Haus ist groß.
   final String exampleTranslationEn; // The house is big.
   final String exampleTranslationTr; // Ev büyük.
+  final int correctStreak;           // ardışık doğru bilme sayısı (yanlışta 0'a döner)
+  final int reviewCount;             // toplam tekrar (doğru+yanlış) sayısı
 
   const Word({
     this.id,
@@ -19,7 +24,18 @@ class Word {
     required this.exampleSentence,
     required this.exampleTranslationEn,
     required this.exampleTranslationTr,
+    this.correctStreak = 0,
+    this.reviewCount = 0,
   });
+
+  // Kaç kez tekrar edildiğine ve ardışık doğru sayısına göre kategori
+  WordCategory get category {
+    // 3 tekrardan az kelime, doğru bilinmiş olsa bile henüz "iyi öğrenilmiş"
+    // sayılacak kadar tekrar edilmemiştir; zorlanılan listesine düşmesin.
+    if (reviewCount < 3) return WordCategory.newWord;
+    if (correctStreak >= 3) return WordCategory.wellLearned;
+    return WordCategory.difficult;
+  }
 
   // SQLite'a yazmak için Map'e çevir
   Map<String, dynamic> toMap() {
@@ -33,6 +49,8 @@ class Word {
       'exampleSentence': exampleSentence,
       'exampleTranslationEn': exampleTranslationEn,
       'exampleTranslationTr': exampleTranslationTr,
+      'correctStreak': correctStreak,
+      'reviewCount': reviewCount,
     };
   }
 
@@ -48,6 +66,8 @@ class Word {
       exampleSentence: map['exampleSentence'] as String? ?? '',
       exampleTranslationEn: map['exampleTranslationEn'] as String? ?? '',
       exampleTranslationTr: map['exampleTranslationTr'] as String? ?? '',
+      correctStreak: map['correctStreak'] as int? ?? 0,
+      reviewCount: map['reviewCount'] as int? ?? 0,
     );
   }
 }
