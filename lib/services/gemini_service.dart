@@ -89,6 +89,63 @@ class GeminiService {
     );
   }
 
+  // Kullanıcının merak ettiği bir Almanca konusunu basitçe anlatır.
+  Future<String> explainTopic(String keyword, String apiKey) async {
+    final response = await http.post(
+      Uri.parse(_endpoint),
+      headers: {
+        'x-goog-api-key': apiKey,
+        'content-type': 'application/json',
+      },
+      body: jsonEncode({
+        'contents': [
+          {
+            'role': 'user',
+            'parts': [
+              {
+                'text':
+                    'Ben almanca da $keyword konusunu öğrenmekte çok zorlanıyorum. '
+                    'Bana bunu çok basit bir şekilde anlat. Bir kaç örnek ile destekle. '
+                    'Düz metin olarak cevap ver, yıldız (*) ya da başlık gibi '
+                    'markdown biçimlendirmesi kullanma.',
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    if (response.statusCode == 400 || response.statusCode == 403) {
+      throw GeminiApiException(
+        'API anahtarı geçersiz.',
+        isInvalidKey: true,
+      );
+    }
+    if (response.statusCode == 429) {
+      throw GeminiApiException(
+        'Ücretsiz kullanım limitine ulaşıldı. Biraz sonra tekrar dene.',
+      );
+    }
+    if (response.statusCode != 200) {
+      throw GeminiApiException(
+        'Gemini API hatası (${response.statusCode}): ${response.body}',
+      );
+    }
+
+    final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    final candidates = body['candidates'] as List<dynamic>? ?? [];
+    if (candidates.isEmpty) {
+      throw GeminiApiException('Gemini beklenen formatta yanıt vermedi.');
+    }
+
+    final parts = candidates.first['content']?['parts'] as List<dynamic>? ?? [];
+    if (parts.isEmpty) {
+      throw GeminiApiException('Gemini beklenen formatta yanıt vermedi.');
+    }
+
+    return (parts.first['text'] as String? ?? '').trim();
+  }
+
   static const _wordDetailsSchema = {
     'type': 'OBJECT',
     'properties': {

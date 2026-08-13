@@ -15,6 +15,7 @@ class Word {
   final int reviewCount;             // toplam tekrar (doğru+yanlış) sayısı
   final String? level;               // null = kullanıcının kendi kelimesi, 'A1'/'A2'/'B1' = Goethe listesi
   final int? workspaceId;            // kişisel kelimenin ait olduğu çalışma alanı (level null ise geçerli)
+  final String? wordType;            // Goethe kelimeleri için: 'separableVerb'/'irregularVerb'/'regularVerb'/'conjunction', null = Kelimeler
 
   const Word({
     this.id,
@@ -30,7 +31,28 @@ class Word {
     this.reviewCount = 0,
     this.level,
     this.workspaceId,
+    this.wordType,
   });
+
+  // Sadece belirtilen alanları değiştirerek yeni bir Word oluşturur
+  Word copyWith({String? wordType}) {
+    return Word(
+      id: id,
+      article: article,
+      word: word,
+      meaningEn: meaningEn,
+      meaningTr: meaningTr,
+      plural: plural,
+      exampleSentence: exampleSentence,
+      exampleTranslationEn: exampleTranslationEn,
+      exampleTranslationTr: exampleTranslationTr,
+      correctStreak: correctStreak,
+      reviewCount: reviewCount,
+      level: level,
+      workspaceId: workspaceId,
+      wordType: wordType ?? this.wordType,
+    );
+  }
 
   // Kaç kez tekrar edildiğine ve ardışık doğru sayısına göre kategori
   WordCategory get category {
@@ -57,6 +79,7 @@ class Word {
       'reviewCount': reviewCount,
       'level': level,
       'workspaceId': workspaceId,
+      'wordType': wordType,
     };
   }
 
@@ -76,6 +99,7 @@ class Word {
       reviewCount: map['reviewCount'] as int? ?? 0,
       level: map['level'] as String?,
       workspaceId: map['workspaceId'] as int?,
+      wordType: map['wordType'] as String?,
     );
   }
 }

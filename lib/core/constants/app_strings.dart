@@ -21,6 +21,19 @@ class AppStrings {
   static const String goetheB1 = 'B1';
   static const String noGoetheWordsYet = 'Bu seviyede henüz kelime yüklenmedi.';
 
+  // AI ile Öğren
+  static const String aiLearn = 'AI ile Öğren';
+  static const String aiLearnDesc = 'Gemini ile öğren, sorularını sor';
+  static const String askAiTitle = 'Merak Ettiğini Sor';
+  static const String askAiDesc = 'Anlamadığın bir konuyu yaz, yapay zeka basitçe anlatsın';
+  static const String askAiInputLabel = 'Merak ettiğin konu (örn. "ins - zu farkı")';
+  static const String askAiButton = 'Sor';
+  static const String askAiGenerating = 'Konu anlatılıyor...';
+  static const String askAiHistoryTitle = 'Daha Önce Sorduklarım';
+  static const String askAiEmptyHistory =
+      'Henüz bir şey sormadın. Merak ettiğin bir konuyu yaz!';
+  static const String askAiGenericError = 'Konu anlatılamadı. Tekrar dener misin?';
+
   // Çalışma alanları (Benim Çalışma Alanım altındaki koleksiyonlar)
   static const String defaultWorkspaceName = 'Varsayılan Çalışma Alanı';
   static const String newWorkspace = 'Yeni Çalışma Alanı';

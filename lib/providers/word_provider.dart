@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_strings.dart';
+import '../data/goethe_a1_word_types.dart';
 import '../data/goethe_a1_words.dart';
 import '../models/word.dart';
 import '../services/database_service.dart';
@@ -15,13 +16,16 @@ final wordsProvider = FutureProvider<List<Word>>((ref) async {
 });
 
 // Goethe A1 listesini bir kere (uygulama her açılışında, tekrarsız olarak)
-// veritabanına yükler. HomeScreen tarafından tetiklenir.
+// veritabanına yükler. Her kelime, kelimeler/ayrılabilir-düzenli-düzensiz
+// fiiller/bağlaçlar ayrımı için wordType ile etiketlenir. HomeScreen
+// tarafından tetiklenir.
 final goetheSeedProvider = FutureProvider<void>((ref) async {
   final db = ref.read(databaseServiceProvider);
-  final inserted = await db.insertWordsIfAbsent(goetheA1Words());
-  if (inserted > 0) {
-    ref.invalidate(wordsProvider);
-  }
+  final classifiedWords = goetheA1Words()
+      .map((w) => w.copyWith(wordType: classifyGoetheWordType(w.word)))
+      .toList();
+  await db.insertWordsIfAbsent(classifiedWords);
+  ref.invalidate(wordsProvider);
 });
 
 // Kelime ekleme işleminin durumu

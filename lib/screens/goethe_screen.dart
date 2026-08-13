@@ -3,7 +3,7 @@ import '../core/constants/app_strings.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/theme/app_colors.dart';
 import '../widgets/home_menu_button.dart';
-import 'word_list_screen.dart';
+import 'goethe_word_type_screen.dart';
 
 class GoetheScreen extends StatelessWidget {
   const GoetheScreen({super.key});
@@ -44,10 +44,9 @@ class _LevelButton extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => WordListScreen(
+          builder: (_) => GoetheWordTypeScreen(
             level: level,
             title: 'Goethe $label',
-            emptyMessage: AppStrings.noGoetheWordsYet,
           ),
         ),
       ),

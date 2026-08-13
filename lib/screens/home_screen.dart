@@ -6,6 +6,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
 import '../providers/word_provider.dart';
 import '../widgets/home_menu_button.dart';
+import 'ai_learn_screen.dart';
 import 'goethe_screen.dart';
 import 'settings_screen.dart';
 import 'word_type_menu_screen.dart';
@@ -69,6 +70,17 @@ class HomeScreen extends ConsumerWidget {
                     wordsDestination: GoetheScreen(),
                   ),
                 ),
+              ),
+            ),
+            const SizedBox(height: AppSizes.md),
+            HomeMenuButton(
+              label: AppStrings.aiLearn,
+              subtitle: AppStrings.aiLearnDesc,
+              icon: Icons.auto_awesome,
+              accentColor: AppColors.die,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AiLearnScreen()),
               ),
             ),
           ],

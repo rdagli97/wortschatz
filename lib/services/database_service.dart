@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../core/constants/app_strings.dart';
+import '../models/topic.dart';
 import '../models/word.dart';
 import '../models/workspace.dart';
 
@@ -20,13 +21,22 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 6,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE workspaces(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             isDefault INTEGER NOT NULL DEFAULT 0
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE topics(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            keyword TEXT NOT NULL,
+            explanation TEXT NOT NULL,
+            createdAt INTEGER NOT NULL
           )
         ''');
         final defaultWorkspaceId = await db.insert('workspaces', {
@@ -48,7 +58,8 @@ class DatabaseService {
             correctStreak INTEGER NOT NULL DEFAULT 0,
             reviewCount INTEGER NOT NULL DEFAULT 0,
             level TEXT,
-            workspaceId INTEGER
+            workspaceId INTEGER,
+            wordType TEXT
           )
         ''');
 
@@ -91,6 +102,19 @@ class DatabaseService {
             {'workspaceId': defaultWorkspaceId},
             where: 'level IS NULL AND workspaceId IS NULL',
           );
+        }
+        if (oldVersion < 5) {
+          await db.execute('ALTER TABLE words ADD COLUMN wordType TEXT');
+        }
+        if (oldVersion < 6) {
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS topics(
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              keyword TEXT NOT NULL,
+              explanation TEXT NOT NULL,
+              createdAt INTEGER NOT NULL
+            )
+          ''');
         }
       },
     );
@@ -137,27 +161,51 @@ class DatabaseService {
     });
   }
 
-  // SEED - Goethe listelerini yükler; aynı seviyede aynı kelime zaten varsa atlar
-  // (seeder birden fazla kez çalıştırılsa da kelimeler çoğalmaz)
+  // SEED - Goethe listelerini yükler; aynı seviyede aynı kelime zaten varsa
+  // atlar (seeder birden fazla kez çalıştırılsa da kelimeler çoğalmaz).
+  // Daha önce eklenmiş ama wordType'ı henüz işlenmemiş kelimeler varsa
+  // (örn. kelime türü sınıflandırması sonradan eklendiyse) bu alan geriye
+  // dönük olarak güncellenir.
   Future<int> insertWordsIfAbsent(List<Word> words) async {
     final db = await _db;
-    final existing = await db.query('words', columns: ['word', 'level']);
-    final existingKeys = existing
-        .map((row) =>
-            '${(row['word'] as String).trim().toLowerCase()}|${row['level'] as String? ?? ''}')
-        .toSet();
+    final existing = await db.query('words', columns: ['id', 'word', 'level', 'wordType']);
+    final existingByKey = {
+      for (final row in existing)
+        '${(row['word'] as String).trim().toLowerCase()}|${row['level'] as String? ?? ''}': row,
+    };
 
     var inserted = 0;
     final batch = db.batch();
     for (final word in words) {
       final key = '${word.word.trim().toLowerCase()}|${word.level ?? ''}';
-      if (existingKeys.contains(key)) continue;
-      existingKeys.add(key);
-      batch.insert('words', word.toMap());
-      inserted++;
+      final existingRow = existingByKey[key];
+      if (existingRow == null) {
+        batch.insert('words', word.toMap());
+        inserted++;
+      } else if (existingRow['wordType'] == null && word.wordType != null) {
+        batch.update(
+          'words',
+          {'wordType': word.wordType},
+          where: 'id = ?',
+          whereArgs: [existingRow['id']],
+        );
+      }
     }
     await batch.commit(noResult: true);
     return inserted;
+  }
+
+  // CREATE - "Merak Ettiğini Sor" ile üretilen konu anlatımını kaydet
+  Future<int> insertTopic(Topic topic) async {
+    final db = await _db;
+    return await db.insert('topics', topic.toMap());
+  }
+
+  // READ - kaydedilmiş konu anlatımlarını getir (en yeni üstte)
+  Future<List<Topic>> getTopics() async {
+    final db = await _db;
+    final maps = await db.query('topics', orderBy: 'createdAt DESC');
+    return maps.map((map) => Topic.fromMap(map)).toList();
   }
 
   // UPDATE - tekrar sonucunu işle (doğru: streak +1, yanlış: streak 0'a döner)
