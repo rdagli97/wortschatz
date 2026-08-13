@@ -131,7 +131,7 @@ class _AskAiScreenState extends ConsumerState<AskAiScreen> {
   }
 }
 
-class _TopicTile extends StatelessWidget {
+class _TopicTile extends ConsumerWidget {
   final Topic topic;
 
   const _TopicTile({required this.topic});
@@ -154,7 +154,7 @@ class _TopicTile extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () => Navigator.push(
         context,
@@ -185,7 +185,11 @@ class _TopicTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: AppColors.textMuted),
+              onPressed: () =>
+                  ref.read(topicListControllerProvider).deleteTopic(topic.id!),
+            ),
           ],
         ),
       ),

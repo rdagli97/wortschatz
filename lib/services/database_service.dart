@@ -210,6 +210,12 @@ class DatabaseService {
     return maps.map((map) => Topic.fromMap(map)).toList();
   }
 
+  // DELETE - kaydedilmiş bir konu anlatımını sil
+  Future<int> deleteTopic(int id) async {
+    final db = await _db;
+    return await db.delete('topics', where: 'id = ?', whereArgs: [id]);
+  }
+
   // UPDATE - tekrar sonucunu işle (doğru: streak +1, yanlış: streak 0'a döner)
   Future<void> recordAnswer(int id, bool correct) async {
     final db = await _db;

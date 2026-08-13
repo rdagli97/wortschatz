@@ -39,13 +39,17 @@ class _TestModeScreenState extends ConsumerState<TestModeScreen> {
   }
 
   Future<void> _submit() async {
-    if (_selectedArticle == null || _wordController.text.trim().isEmpty) {
-      return;
-    }
+    final word = ref.read(testModeControllerProvider).currentWord;
+    if (word == null || _wordController.text.trim().isEmpty) return;
+
+    // Sadece isimlerin artikeli vardır; fiil/bağlaç gibi kelimelerde artikel
+    // hiç sorulmuyor, doğrudan boş kabul edilir.
+    final isNoun = word.article.isNotEmpty;
+    if (isNoun && _selectedArticle == null) return;
 
     final controller = ref.read(testModeControllerProvider.notifier);
     await controller.submitAnswer(
-      article: _selectedArticle!,
+      article: isNoun ? _selectedArticle! : '',
       typedWord: _wordController.text,
     );
     if (!mounted) return;
@@ -68,6 +72,7 @@ class _TestModeScreenState extends ConsumerState<TestModeScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(testModeControllerProvider);
     final word = state.currentWord;
+    final isNoun = word?.article.isNotEmpty ?? false;
 
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.exerciseTestTitle)),
@@ -109,14 +114,16 @@ class _TestModeScreenState extends ConsumerState<TestModeScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: AppSizes.lg),
-                  Text(AppStrings.article, style: AppTextStyles.caption),
-                  const SizedBox(height: AppSizes.sm),
-                  _ArticleDropdown(
-                    selected: _selectedArticle,
-                    onChanged: (value) =>
-                        setState(() => _selectedArticle = value),
-                  ),
+                  if (isNoun) ...[
+                    const SizedBox(height: AppSizes.lg),
+                    Text(AppStrings.article, style: AppTextStyles.caption),
+                    const SizedBox(height: AppSizes.sm),
+                    _ArticleDropdown(
+                      selected: _selectedArticle,
+                      onChanged: (value) =>
+                          setState(() => _selectedArticle = value),
+                    ),
+                  ],
                   const SizedBox(height: AppSizes.md),
                   WortTextField(
                     controller: _wordController,
@@ -144,7 +151,7 @@ class _TestModeScreenState extends ConsumerState<TestModeScreen> {
   }
 }
 
-// Artikel seçimi için sade bir dropdown (isim olmayan kelimeler için "—" seçeneği içerir)
+// Artikel seçimi için sade bir dropdown (sadece isim olan kelimelerde gösterilir)
 class _ArticleDropdown extends StatelessWidget {
   final String? selected;
   final ValueChanged<String?> onChanged;
@@ -153,7 +160,7 @@ class _ArticleDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const options = ['der', 'die', 'das', ''];
+    const options = ['der', 'die', 'das'];
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
@@ -176,7 +183,7 @@ class _ArticleDropdown extends StatelessWidget {
                 (a) => DropdownMenuItem(
                   value: a,
                   child: Text(
-                    a.isEmpty ? AppStrings.testNoArticle : a,
+                    a,
                     style: AppTextStyles.body.copyWith(color: AppColors.forArticle(a)),
                   ),
                 ),

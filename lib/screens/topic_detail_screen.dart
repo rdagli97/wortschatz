@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
 import '../models/topic.dart';
+import '../providers/topic_provider.dart';
 
-class TopicDetailScreen extends StatelessWidget {
+class TopicDetailScreen extends ConsumerWidget {
   final Topic topic;
 
   const TopicDetailScreen({super.key, required this.topic});
@@ -52,9 +54,20 @@ class TopicDetailScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: Text(topic.keyword)),
+      appBar: AppBar(
+        title: Text(topic.keyword),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () async {
+              await ref.read(topicListControllerProvider).deleteTopic(topic.id!);
+              if (context.mounted) Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSizes.md),
         child: Container(

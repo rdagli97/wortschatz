@@ -83,7 +83,6 @@ class AppStrings {
   // Test modu (soru ekranı)
   static const String testWriteHint = 'Almancasını yaz';
   static const String testSeeResult = 'Sonucu Gör';
-  static const String testNoArticle = '— (isim değil)';
 
   // Test sonucu
   static const String testResultTitle = 'Sonuç';

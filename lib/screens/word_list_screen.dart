@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wortschatz/screens/flashcard_screen.dart';
 import '../core/constants/app_sizes.dart';
@@ -129,73 +130,78 @@ class WordListScreen extends ConsumerWidget {
     required String buttonLabel,
     required void Function(int count) onConfirm,
   }) {
-    int selectedCount = words.length;
+    final countController = TextEditingController(text: words.length.toString());
+    String? countError;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusLg)),
       ),
       builder: (sheetContext) => StatefulBuilder(
-        builder: (sheetContext, setSheetState) => SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSizes.md),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyles.title),
-                const SizedBox(height: AppSizes.xs),
-                Text(question, style: AppTextStyles.caption),
-                const SizedBox(height: AppSizes.md),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                    border: Border.all(color: AppColors.divider),
+        builder: (sheetContext, setSheetState) {
+          return SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: AppSizes.md,
+                right: AppSizes.md,
+                top: AppSizes.md,
+                bottom: AppSizes.md + MediaQuery.of(sheetContext).viewInsets.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTextStyles.title),
+                  const SizedBox(height: AppSizes.xs),
+                  Text(question, style: AppTextStyles.caption),
+                  const SizedBox(height: AppSizes.md),
+                  TextField(
+                    controller: countController,
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: AppTextStyles.body,
+                    decoration: InputDecoration(
+                      labelText: 'Kelime sayısı',
+                      hintText: 'Maks. ${words.length}',
+                      errorText: countError,
+                    ),
+                    onChanged: (_) {
+                      if (countError != null) setSheetState(() => countError = null);
+                    },
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<int>(
-                      value: selectedCount,
-                      isExpanded: true,
-                      dropdownColor: AppColors.surfaceLight,
-                      items: List.generate(words.length, (i) => i + 1)
-                          .map(
-                            (n) => DropdownMenuItem(
-                              value: n,
-                              child: Text('$n kelime', style: AppTextStyles.body),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null) setSheetState(() => selectedCount = value);
-                      },
+                  const SizedBox(height: AppSizes.lg),
+                  ElevatedButton(
+                    onPressed: () {
+                      final entered = int.tryParse(countController.text.trim());
+                      if (entered == null || entered < 1 || entered > words.length) {
+                        setSheetState(() {
+                          countError = '1 ile ${words.length} arasında bir sayı gir.';
+                        });
+                        return;
+                      }
+                      Navigator.pop(sheetContext);
+                      onConfirm(entered);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: AppSizes.md),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                      ),
+                    ),
+                    child: Text(
+                      buttonLabel,
+                      style: AppTextStyles.title.copyWith(color: Colors.white),
                     ),
                   ),
-                ),
-                const SizedBox(height: AppSizes.lg),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(sheetContext);
-                    onConfirm(selectedCount);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: AppSizes.md),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                    ),
-                  ),
-                  child: Text(
-                    buttonLabel,
-                    style: AppTextStyles.title.copyWith(color: Colors.white),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

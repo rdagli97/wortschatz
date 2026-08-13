@@ -11,6 +11,19 @@ final topicsProvider = FutureProvider<List<Topic>>((ref) async {
   return ref.watch(databaseServiceProvider).getTopics();
 });
 
+class TopicListController {
+  final Ref ref;
+  const TopicListController(this.ref);
+
+  Future<void> deleteTopic(int id) async {
+    await ref.read(databaseServiceProvider).deleteTopic(id);
+    ref.invalidate(topicsProvider);
+  }
+}
+
+final topicListControllerProvider =
+    Provider<TopicListController>(TopicListController.new);
+
 class AskAiState {
   final bool isLoading;
   final String? errorMessage;
