@@ -5,8 +5,8 @@ import '../core/theme/app_colors.dart';
 import '../widgets/home_menu_button.dart';
 import 'story_generate_screen.dart';
 
-// "Hikaye Oku" altındaki seviye seçimi. Şimdilik A1 ve A2 için hikaye
-// üretimi var; B1 ileride eklenecek.
+// "Hikaye Oku" altındaki seviye seçimi: A1, A2, B1 ve tüm seviyelerin
+// karıştığı doğal "Karma" modu için hikaye üretimi var.
 class StoryLevelScreen extends StatelessWidget {
   const StoryLevelScreen({super.key});
 
@@ -46,8 +46,27 @@ class StoryLevelScreen extends StatelessWidget {
               label: AppStrings.goetheB1,
               icon: Icons.auto_stories_outlined,
               accentColor: AppColors.die,
-              enabled: false,
-              onTap: () {},
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StoryGenerateScreen(level: 'B1'),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSizes.lg),
+            const Divider(color: AppColors.divider),
+            const SizedBox(height: AppSizes.lg),
+            HomeMenuButton(
+              label: AppStrings.storyMixedLevel,
+              subtitle: AppStrings.storyMixedLevelDesc,
+              icon: Icons.auto_awesome,
+              accentColor: AppColors.primaryDark,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StoryGenerateScreen(level: 'Karma'),
+                ),
+              ),
             ),
           ],
         ),

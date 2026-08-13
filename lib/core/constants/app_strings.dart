@@ -58,6 +58,8 @@ class AppStrings {
   static const String storyEmptyHistory =
       'Henüz bir hikaye okumadın. Yukarıdan yeni bir tane oluştur!';
   static const String storyDone = 'Bitti';
+  static const String storyMixedLevel = 'Karma';
+  static const String storyMixedLevelDesc = 'Tüm seviyeler karışık, doğal bir hikaye';
   static const String storyTapHint =
       'Kelimelere dokun: anlamını gör, çalışma alanına ekle.';
   static const String storyWordAddButton = 'Çalışma Alanına Ekle';

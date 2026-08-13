@@ -165,7 +165,7 @@ class GeminiService {
   }
 
   // Seviyeye uygun, okunması kolay kısa bir Almanca hikaye üretir.
-  // Şimdilik 'A1' ve 'A2' seviyeleri destekleniyor.
+  // 'A1', 'A2', 'B1' ve seviyelerin karıştığı doğal 'Karma' modu destekleniyor.
   Future<GeneratedStory> generateStory(
     String level,
     String topic,
@@ -178,7 +178,7 @@ class GeminiService {
 
     final examples = _topicExamplesByLevel[level] ?? '';
     final topicInstruction = topic.trim().isEmpty
-        ? 'No topic was given. Choose a common everyday $level topic yourself '
+        ? 'No topic was given. Choose a common everyday topic yourself '
             '(e.g. $examples).'
         : 'A topic has been given: "${topic.trim()}". Build the story around '
             'this topic.';
@@ -291,12 +291,66 @@ a list of paragraphs: one array item per paragraph (3-5 items total), each
 item containing several connected sentences following the rules above. Do
 not add translations, explanations, grammar notes, markdown, quotes, or
 emojis anywhere.''',
+    'B1': '''
+You are a German language teacher creating short reading stories for B1-level learners.
+
+Generate ONE original German story following these STRICT rules:
+
+## LEVEL: B1 (CEFR)
+- Choose the tense that fits the story type:
+  - For narrated events/experiences, use PRÄTERITUM as the main narrative tense (e.g. beschloss, ging, fand, dachte nach), with Perfekt where natural.
+  - For descriptions of a person, place or routine, Präsens is fine.
+- Use a rich variety of subordinate clauses and connectors: obwohl, weil, dass, damit, deshalb, trotzdem, während, bevor, nachdem, sodass, gleichzeitig, als.
+- Use zu + Infinitiv constructions (e.g. "Ich beschloss, die Bibliothek zu besuchen", "Er versucht, gesund zu essen").
+- Use reflexive and verb+preposition structures (sich freuen auf, sich gewöhnen an, sich interessieren für, achten auf, sich vorbereiten auf).
+- Vary sentence structure: start some sentences with a connector or adverb and apply correct inversion.
+- Include some reflection, opinion or emotional depth — not only actions, but also thoughts and evaluations (e.g. why something matters, how the person feels).
+- Use B1 vocabulary, including some abstract nouns (Möglichkeiten, Erfahrungen, Verantwortung, Deutschkenntnisse, Ernährung).
+- Perspective can be 1st person singular OR 3rd person singular (a character portrait/story about someone).
+- Structure the story in 3–4 paragraphs with a clear arc: situation → development → reflection/conclusion.
+- Total length: 35–45 sentences.
+
+## OUTPUT
+Return the title (2-5 German words, no ending punctuation) and the story as
+a list of paragraphs: one array item per paragraph (3-4 items total), each
+item containing several connected sentences following the rules above. Do
+not add translations, explanations, grammar notes, markdown, quotes, or
+emojis anywhere.''',
+    'Karma': '''
+You are a native German writer creating short, natural reading stories for German learners.
+
+Generate ONE original German story that reads like authentic, natural German — NOT like a graded textbook text.
+
+## STYLE & LANGUAGE
+- Write natural German that mixes simple and complex sentences, the way real texts do.
+- Vary sentence length: some short and direct, some longer with subordinate clauses.
+- Use whatever tense the story needs: Präsens for descriptions, Perfekt for spoken-style past, Präteritum for narration. Mix them naturally.
+- Freely use subordinate clauses and connectors (weil, dass, obwohl, während, bevor, nachdem, deshalb, trotzdem, damit, als, sodass), zu + Infinitiv, reflexive verbs and verb+preposition structures — but only where they feel natural.
+- Keep the overall vocabulary accessible (roughly up to B1). Avoid rare, literary or highly technical words. If a slightly harder word fits naturally, it's fine.
+- Aim for warmth and authenticity: real situations, small emotions, everyday details, a natural flow — not a mechanical list of actions.
+
+## STRUCTURE
+- Give the story a clear arc: a situation, some development, and a small ending or reflection.
+- 3–4 paragraphs. Total length: about 30–45 sentences.
+- Perspective can be 1st or 3rd person.
+
+## OUTPUT
+Return the title (2-5 German words, no ending punctuation) and the story as
+a list of paragraphs: one array item per paragraph (3-4 items total), each
+item containing several connected sentences following the rules above. Do
+not add translations, explanations, grammar notes, level labels, markdown,
+quotes, or emojis anywhere.''',
   };
 
   static const _topicExamplesByLevel = {
     'A1': 'shopping, cooking, a day at home, a walk, the weather, visiting a friend',
     'A2': 'moving to a new city, a family visit, describing a relative, a day '
         'trip, learning German, a special day',
+    'B1': 'a quiet afternoon, describing a family member, a first job, '
+        'adapting to a new country, a small everyday decision and what it '
+        'taught the person',
+    'Karma': 'a walk in the city, a memorable meal, a small challenge at '
+        'work, an unexpected encounter, a rainy day, learning something new',
   };
 
   static const _storySchema = {
