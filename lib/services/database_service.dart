@@ -163,26 +163,28 @@ class DatabaseService {
 
   // SEED - Goethe listelerini yükler; aynı seviyede aynı kelime zaten varsa
   // atlar (seeder birden fazla kez çalıştırılsa da kelimeler çoğalmaz).
-  // Daha önce eklenmiş ama wordType'ı henüz işlenmemiş kelimeler varsa
-  // (örn. kelime türü sınıflandırması sonradan eklendiyse) bu alan geriye
-  // dönük olarak güncellenir.
+  // Eşleştirme büyük/küçük harfe duyarlıdır: "Essen" (isim) ile "essen"
+  // (fiil) gibi eş sesli kelimeler birbirine karışmaz. Daha önce eklenmiş
+  // ama wordType'ı yanlış ya da boş kalmış kelimeler varsa (örn. kelime türü
+  // sınıflandırması sonradan eklendiyse/düzeltildiyse) bu alan geriye dönük
+  // olarak güncellenir.
   Future<int> insertWordsIfAbsent(List<Word> words) async {
     final db = await _db;
     final existing = await db.query('words', columns: ['id', 'word', 'level', 'wordType']);
     final existingByKey = {
       for (final row in existing)
-        '${(row['word'] as String).trim().toLowerCase()}|${row['level'] as String? ?? ''}': row,
+        '${(row['word'] as String).trim()}|${row['level'] as String? ?? ''}': row,
     };
 
     var inserted = 0;
     final batch = db.batch();
     for (final word in words) {
-      final key = '${word.word.trim().toLowerCase()}|${word.level ?? ''}';
+      final key = '${word.word.trim()}|${word.level ?? ''}';
       final existingRow = existingByKey[key];
       if (existingRow == null) {
         batch.insert('words', word.toMap());
         inserted++;
-      } else if (existingRow['wordType'] == null && word.wordType != null) {
+      } else if (existingRow['wordType'] != word.wordType) {
         batch.update(
           'words',
           {'wordType': word.wordType},

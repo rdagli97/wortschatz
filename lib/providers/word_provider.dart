@@ -17,12 +17,16 @@ final wordsProvider = FutureProvider<List<Word>>((ref) async {
 
 // Goethe A1 listesini bir kere (uygulama her açılışında, tekrarsız olarak)
 // veritabanına yükler. Her kelime, kelimeler/ayrılabilir-düzenli-düzensiz
-// fiiller/bağlaçlar ayrımı için wordType ile etiketlenir. HomeScreen
-// tarafından tetiklenir.
+// fiiller/bağlaçlar ayrımı için wordType ile etiketlenir. İsimler (article
+// dolu) hiçbir zaman fiil/bağlaç olarak etiketlenmez — "das Essen" (yemek)
+// ile "essen" (yemek yemek) fiili gibi eş sesli kelimeleri karıştırmaz.
+// HomeScreen tarafından tetiklenir.
 final goetheSeedProvider = FutureProvider<void>((ref) async {
   final db = ref.read(databaseServiceProvider);
   final classifiedWords = goetheA1Words()
-      .map((w) => w.copyWith(wordType: classifyGoetheWordType(w.word)))
+      .map((w) => w.copyWith(
+            wordType: w.article.isEmpty ? classifyGoetheWordType(w.word) : null,
+          ))
       .toList();
   await db.insertWordsIfAbsent(classifiedWords);
   ref.invalidate(wordsProvider);

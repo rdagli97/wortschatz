@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../core/constants/app_sizes.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
-import '../core/constants/app_sizes.dart';
+import '../data/goethe_a1_word_types.dart';
 import '../models/word.dart';
 import 'article_badge.dart';
+import 'verb_position_badge.dart';
 
 class WordTile extends StatelessWidget {
   final Word word;
@@ -19,6 +21,10 @@ class WordTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sendsVerbToEnd = word.wordType == 'conjunction'
+        ? conjunctionSendsVerbToEnd(word.word)
+        : null;
+
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -40,6 +46,10 @@ class WordTile extends StatelessWidget {
                     '${word.meaningTr} · ${word.meaningEn}',
                     style: AppTextStyles.caption,
                   ),
+                  if (sendsVerbToEnd != null) ...[
+                    const SizedBox(height: AppSizes.xs),
+                    VerbPositionBadge(sendsVerbToEnd: sendsVerbToEnd),
+                  ],
                 ],
               ),
             ),

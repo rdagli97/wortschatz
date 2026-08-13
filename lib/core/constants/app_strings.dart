@@ -10,6 +10,9 @@ class AppStrings {
   static const String separableVerbs = 'Ayrılabilir Fiiller';
   static const String conjunctions = 'Bağlaçlar';
   static const String comingSoon = 'Yakında';
+  static const String verbToEnd = 'Fiili sona gönderir';
+  static const String verbStaysSecond = 'Fiili 2. sırada bırakır';
+  static const String presentTenseConjugation = 'Şimdiki Zaman Çekimi';
 
   // Kelimeler ana sayfası (Benim Çalışma Alanım / Goethe)
   static const String myWorkspace = 'Benim Çalışma Alanım';

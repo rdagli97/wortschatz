@@ -67,6 +67,16 @@ const _regularVerbsA1 = {
 // Bağlaçlar (bu listede yer alan, tartışmasız bağlaç olan kelimeler)
 const _conjunctionsA1 = {'und', 'oder', 'aber', 'denn'};
 
+// Almanca'da fiili yan cümlenin sonuna gönderen yan cümle bağlaçları
+// (unterordnende Konjunktionen). Bu, bağlaç sınıflandırmasından (_conjunctionsA1)
+// bağımsız, saf bir dilbilgisi kuralı listesidir; ileride A2/B1 ile birlikte
+// weil/dass/wenn gibi kelimeler bağlaç olarak eklendiğinde otomatik işler.
+const _subordinatingConjunctions = {
+  'weil', 'dass', 'ob', 'wenn', 'während', 'obwohl', 'obgleich', 'nachdem',
+  'bevor', 'ehe', 'seitdem', 'sobald', 'solange', 'soweit', 'damit', 'indem',
+  'falls', 'sodass',
+};
+
 // Verilen kelimeyi sınıflandırır; isim/soru kelimesi/sıfat-zarf gibi diğer
 // tüm kelimeler için null döner (bunlar "Kelimeler" sekmesinde kalır).
 String? classifyGoetheWordType(String word) {
@@ -76,4 +86,12 @@ String? classifyGoetheWordType(String word) {
   if (_irregularVerbsA1.contains(normalized)) return 'irregularVerb';
   if (_regularVerbsA1.contains(normalized)) return 'regularVerb';
   return null;
+}
+
+// Bir bağlacın fiili cümle sonuna gönderip göndermediğini döner.
+// Bağlaç olarak sınıflandırılmamış kelimeler için null döner.
+bool? conjunctionSendsVerbToEnd(String word) {
+  final normalized = word.trim().toLowerCase();
+  if (!_conjunctionsA1.contains(normalized)) return null;
+  return _subordinatingConjunctions.contains(normalized);
 }

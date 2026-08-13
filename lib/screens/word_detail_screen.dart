@@ -3,16 +3,28 @@ import '../core/constants/app_strings.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
+import '../data/goethe_a1_conjugations.dart';
+import '../data/goethe_a1_word_types.dart';
 import '../models/word.dart';
 import '../widgets/article_badge.dart';
+import '../widgets/verb_conjugation_table.dart';
+import '../widgets/verb_position_badge.dart';
 
 class WordDetailScreen extends StatelessWidget {
   final Word word;
 
   const WordDetailScreen({super.key, required this.word});
 
+  static const _verbTypes = {'separableVerb', 'irregularVerb', 'regularVerb'};
+
   @override
   Widget build(BuildContext context) {
+    final isVerb = _verbTypes.contains(word.wordType);
+    final sendsVerbToEnd = word.wordType == 'conjunction'
+        ? conjunctionSendsVerbToEnd(word.word)
+        : null;
+    final conjugation = conjugatePresentTense(word.word, word.wordType);
+
     return Scaffold(
       appBar: AppBar(title: Text(word.word)),
       body: SingleChildScrollView(
@@ -42,11 +54,17 @@ class WordDetailScreen extends StatelessWidget {
                     style: AppTextStyles.title,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppSizes.sm),
-                  Text(
-                    'Çoğul: ${word.plural}',
-                    style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
-                  ),
+                  if (sendsVerbToEnd != null) ...[
+                    const SizedBox(height: AppSizes.sm),
+                    Center(child: VerbPositionBadge(sendsVerbToEnd: sendsVerbToEnd)),
+                  ],
+                  if (!isVerb) ...[
+                    const SizedBox(height: AppSizes.sm),
+                    Text(
+                      'Çoğul: ${word.plural}',
+                      style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
                   const SizedBox(height: AppSizes.lg),
                   const Divider(color: AppColors.divider),
                   const SizedBox(height: AppSizes.md),
@@ -63,6 +81,26 @@ class WordDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
+            if (conjugation != null) ...[
+              const SizedBox(height: AppSizes.lg),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppSizes.lg),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                  border: Border.all(color: AppColors.divider),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(AppStrings.presentTenseConjugation, style: AppTextStyles.title),
+                    const SizedBox(height: AppSizes.sm),
+                    VerbConjugationTable(conjugation: conjugation),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: AppSizes.lg),
             _StatsCard(word: word),
           ],
