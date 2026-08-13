@@ -11,7 +11,7 @@ class GoetheScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.goethe)),
+      appBar: AppBar(title: const Text(AppStrings.words)),
       body: Padding(
         padding: const EdgeInsets.all(AppSizes.md),
         child: Column(

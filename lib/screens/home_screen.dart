@@ -6,8 +6,10 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
 import '../providers/word_provider.dart';
 import '../widgets/home_menu_button.dart';
+import 'goethe_screen.dart';
 import 'settings_screen.dart';
-import 'words_hub_screen.dart';
+import 'word_categories_screen.dart';
+import 'word_type_menu_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -39,37 +41,35 @@ class HomeScreen extends ConsumerWidget {
             Text('Was möchtest du lernen?', style: AppTextStyles.heading),
             const SizedBox(height: AppSizes.xl),
             HomeMenuButton(
-              label: AppStrings.words,
-              icon: Icons.style,
+              label: AppStrings.myWorkspace,
+              subtitle: AppStrings.myWorkspaceDesc,
+              icon: Icons.person_outline,
               accentColor: AppColors.primary,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const WordsHubScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const WordTypeMenuScreen(
+                    title: AppStrings.myWorkspace,
+                    wordsDestination: WordCategoriesScreen(),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: AppSizes.md),
             HomeMenuButton(
-              label: AppStrings.regularVerbs,
-              icon: Icons.repeat,
-              accentColor: AppColors.der,
-              enabled: false,
-              onTap: () {},
-            ),
-            const SizedBox(height: AppSizes.md),
-            HomeMenuButton(
-              label: AppStrings.irregularVerbs,
-              icon: Icons.shuffle,
-              accentColor: AppColors.die,
-              enabled: false,
-              onTap: () {},
-            ),
-            const SizedBox(height: AppSizes.md),
-            HomeMenuButton(
-              label: AppStrings.conjunctions,
-              icon: Icons.link,
+              label: AppStrings.goethe,
+              subtitle: AppStrings.goetheDesc,
+              icon: Icons.school_outlined,
               accentColor: AppColors.das,
-              enabled: false,
-              onTap: () {},
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const WordTypeMenuScreen(
+                    title: AppStrings.goethe,
+                    wordsDestination: GoetheScreen(),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

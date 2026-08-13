@@ -62,7 +62,7 @@ class WordCategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.myWorkspace)),
+      appBar: AppBar(title: const Text(AppStrings.words)),
       body: Padding(
         padding: const EdgeInsets.all(AppSizes.md),
         child: Column(

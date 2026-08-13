@@ -7,6 +7,7 @@ class AppStrings {
   static const String words = 'Kelimeler';
   static const String regularVerbs = 'Düzenli Fiiller';
   static const String irregularVerbs = 'Düzensiz Fiiller';
+  static const String separableVerbs = 'Ayrılabilir Fiiller';
   static const String conjunctions = 'Bağlaçlar';
   static const String comingSoon = 'Yakında';
 
