@@ -57,7 +57,6 @@ class AppStrings {
   static const String storyHistoryTitle = 'Daha Önce Okuduklarım';
   static const String storyEmptyHistory =
       'Henüz bir hikaye okumadın. Yukarıdan yeni bir tane oluştur!';
-  static const String storyComingSoon = 'Bu seviye için hikaye üretimi henüz eklenmedi.';
   static const String storyDone = 'Bitti';
   static const String storyTapHint =
       'Kelimelere dokun: anlamını gör, çalışma alanına ekle.';

@@ -124,7 +124,7 @@ class _StoryDetailScreenState extends ConsumerState<StoryDetailScreen> {
                             ),
                   ],
                 ),
-                const SizedBox(height: AppSizes.sm),
+                const SizedBox(height: AppSizes.md),
               ],
             ],
           ),

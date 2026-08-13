@@ -165,7 +165,7 @@ class GeminiService {
   }
 
   // Seviyeye uygun, okunması kolay kısa bir Almanca hikaye üretir.
-  // Şimdilik sadece 'A1' seviyesi destekleniyor.
+  // Şimdilik 'A1' ve 'A2' seviyeleri destekleniyor.
   Future<GeneratedStory> generateStory(
     String level,
     String topic,
@@ -176,10 +176,10 @@ class GeminiService {
       throw GeminiApiException('$level seviyesi için hikaye üretimi henüz eklenmedi.');
     }
 
+    final examples = _topicExamplesByLevel[level] ?? '';
     final topicInstruction = topic.trim().isEmpty
-        ? 'No topic was given. Choose a common everyday A1 topic yourself '
-            '(e.g. shopping, cooking, a day at home, a walk, the weather, '
-            'visiting a friend).'
+        ? 'No topic was given. Choose a common everyday $level topic yourself '
+            '(e.g. $examples).'
         : 'A topic has been given: "${topic.trim()}". Build the story around '
             'this topic.';
 
@@ -269,6 +269,34 @@ Return the title (2-4 German words, no ending punctuation) and the story as
 a list of sentences, one idea per array item, following the sentence rules
 above. Do not add translations, explanations, grammar notes, markdown,
 quotes, or emojis anywhere.''',
+    'A2': '''
+You are a German language teacher creating short reading stories for A2-level learners.
+
+Generate ONE original German story following these STRICT rules:
+
+## LEVEL: A2 (CEFR)
+- Main tense is Präsens, but you MUST also use Perfekt naturally (e.g. "Ich bin gekommen", "Ich habe gesehen"). A few Präteritum forms of common verbs are allowed (war, hatte, kam, ging).
+- Use subordinate clauses (Nebensätze). Include connectors such as: weil, dass, wenn, als, während, nachdem, um...zu, trotzdem, deshalb.
+- Also use sequencing/time words: zuerst, danach, später, dann, am Ende, gegen Mittag, am Morgen, am Abend.
+- Sentences can be longer and combine two ideas, but stay clear and readable.
+- Use A2 vocabulary: everyday life, family, feelings, opinions, travel, work, daily routine, simple descriptions and comparisons.
+- Write mainly in 1st person singular (Ich...). Other people may appear and interact.
+- Structure the story in 3–5 short paragraphs with a clear beginning, middle and end.
+- Total length: 30–45 sentences.
+- The story should describe a connected experience or event (e.g. a day, a visit, a trip, a description of a person or place).
+
+## OUTPUT
+Return the title (2-5 German words, no ending punctuation) and the story as
+a list of paragraphs: one array item per paragraph (3-5 items total), each
+item containing several connected sentences following the rules above. Do
+not add translations, explanations, grammar notes, markdown, quotes, or
+emojis anywhere.''',
+  };
+
+  static const _topicExamplesByLevel = {
+    'A1': 'shopping, cooking, a day at home, a walk, the weather, visiting a friend',
+    'A2': 'moving to a new city, a family visit, describing a relative, a day '
+        'trip, learning German, a special day',
   };
 
   static const _storySchema = {
@@ -276,12 +304,14 @@ quotes, or emojis anywhere.''',
     'properties': {
       'title': {
         'type': 'STRING',
-        'description': 'Almanca başlık, 2-4 kelime, sonunda noktalama yok',
+        'description': 'Almanca başlık, 2-5 kelime, sonunda noktalama yok',
       },
       'sentences': {
         'type': 'ARRAY',
         'items': {'type': 'STRING'},
-        'description': 'Hikayenin cümleleri, her biri ayrı bir dizi elemanı',
+        'description':
+            'Hikayenin metni; seviyeye göre her biri bir cümle ya da bir '
+            'paragraf olacak şekilde ayrı bir dizi elemanı',
       },
     },
     'required': ['title', 'sentences'],

@@ -5,8 +5,8 @@ import '../core/theme/app_colors.dart';
 import '../widgets/home_menu_button.dart';
 import 'story_generate_screen.dart';
 
-// "Hikaye Oku" altındaki seviye seçimi. Şimdilik sadece A1 için hikaye
-// üretimi var; A2/B1 ileride eklenecek.
+// "Hikaye Oku" altındaki seviye seçimi. Şimdilik A1 ve A2 için hikaye
+// üretimi var; B1 ileride eklenecek.
 class StoryLevelScreen extends StatelessWidget {
   const StoryLevelScreen({super.key});
 
@@ -34,8 +34,12 @@ class StoryLevelScreen extends StatelessWidget {
               label: AppStrings.goetheA2,
               icon: Icons.auto_stories_outlined,
               accentColor: AppColors.primary,
-              enabled: false,
-              onTap: () {},
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StoryGenerateScreen(level: 'A2'),
+                ),
+              ),
             ),
             const SizedBox(height: AppSizes.md),
             HomeMenuButton(
