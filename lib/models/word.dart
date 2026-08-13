@@ -56,11 +56,16 @@ class Word {
 
   // Kaç kez tekrar edildiğine ve ardışık doğru sayısına göre kategori
   WordCategory get category {
-    // 3 tekrardan az kelime, doğru bilinmiş olsa bile henüz "iyi öğrenilmiş"
-    // sayılacak kadar tekrar edilmemiştir; zorlanılan listesine düşmesin.
-    if (reviewCount < 3) return WordCategory.newWord;
+    // Hiç tekrar edilmemiş (henüz test edilmemiş) kelime "yeni" kalır;
+    // sırf yeni eklendi diye zorlanılan listesine düşmesin.
+    if (reviewCount == 0) return WordCategory.newWord;
     if (correctStreak >= 3) return WordCategory.wellLearned;
-    return WordCategory.difficult;
+    // Tek bir yanlış cevap bile (correctStreak sıfırlanır) kelimeyi anında
+    // zorlanılan listesine taşır — daha önce 7 kere üst üste bilinmiş bir
+    // kelime bile ilk yanlışta hemen buraya düşer, kullanıcı hatasını
+    // gizlemeden direkt görsün.
+    if (correctStreak == 0) return WordCategory.difficult;
+    return WordCategory.newWord;
   }
 
   // SQLite'a yazmak için Map'e çevir

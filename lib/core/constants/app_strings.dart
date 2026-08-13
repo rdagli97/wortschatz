@@ -18,6 +18,12 @@ class AppStrings {
   static const String verbCaseBoth = 'Dativ + Akkusativ alır';
   static const String verbCaseNominativ = 'Nesne almaz';
 
+  // Çalışma alanı / seviye ilerleme takibi
+  static const String statsTotalLabel = 'Toplam';
+  static const String statsDifficultLabel = 'Zorlanılan';
+  static const String statsLearnedLabel = 'Öğrenilen';
+  static const String statsEmptyLabel = 'Henüz kelime yok';
+
   // Kelimeler ana sayfası (Benim Çalışma Alanım / Goethe)
   static const String myWorkspace = 'Benim Çalışma Alanım';
   static const String myWorkspaceDesc = 'Kendi eklediğin kelimeler';

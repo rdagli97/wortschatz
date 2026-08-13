@@ -1,26 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_strings.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/theme/app_colors.dart';
-import '../widgets/home_menu_button.dart';
+import '../models/word.dart';
+import '../providers/word_provider.dart';
+import '../widgets/word_progress_card.dart';
 import 'goethe_word_type_screen.dart';
 
-class GoetheScreen extends StatelessWidget {
+class GoetheScreen extends ConsumerWidget {
   const GoetheScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final wordsAsync = ref.watch(wordsProvider);
+    final words = wordsAsync.value ?? const <Word>[];
+
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.words)),
       body: Padding(
         padding: const EdgeInsets.all(AppSizes.md),
         child: Column(
           children: [
-            _LevelButton(level: 'A1', label: AppStrings.goetheA1, color: AppColors.das),
+            _LevelCard(
+              level: 'A1',
+              label: AppStrings.goetheA1,
+              color: AppColors.das,
+              words: words,
+            ),
             const SizedBox(height: AppSizes.md),
-            _LevelButton(level: 'A2', label: AppStrings.goetheA2, color: AppColors.primary),
+            _LevelCard(
+              level: 'A2',
+              label: AppStrings.goetheA2,
+              color: AppColors.primary,
+              words: words,
+            ),
             const SizedBox(height: AppSizes.md),
-            _LevelButton(level: 'B1', label: AppStrings.goetheB1, color: AppColors.die),
+            _LevelCard(
+              level: 'B1',
+              label: AppStrings.goetheB1,
+              color: AppColors.die,
+              words: words,
+            ),
           ],
         ),
       ),
@@ -28,19 +49,34 @@ class GoetheScreen extends StatelessWidget {
   }
 }
 
-class _LevelButton extends StatelessWidget {
+class _LevelCard extends StatelessWidget {
   final String level;
   final String label;
   final Color color;
+  final List<Word> words;
 
-  const _LevelButton({required this.level, required this.label, required this.color});
+  const _LevelCard({
+    required this.level,
+    required this.label,
+    required this.color,
+    required this.words,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return HomeMenuButton(
+    final levelWords = words.where((w) => w.level == level).toList();
+    final difficult =
+        levelWords.where((w) => w.category == WordCategory.difficult).length;
+    final learned =
+        levelWords.where((w) => w.category == WordCategory.wellLearned).length;
+
+    return WordProgressCard(
       label: 'Goethe $label',
       icon: Icons.flag_outlined,
       accentColor: color,
+      total: levelWords.length,
+      difficult: difficult,
+      learned: learned,
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
