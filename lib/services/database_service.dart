@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../core/constants/app_strings.dart';
+import '../models/story.dart';
 import '../models/topic.dart';
 import '../models/word.dart';
 import '../models/workspace.dart';
@@ -21,7 +22,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 6,
+      version: 7,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE workspaces(
@@ -36,6 +37,17 @@ class DatabaseService {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             keyword TEXT NOT NULL,
             explanation TEXT NOT NULL,
+            createdAt INTEGER NOT NULL
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE stories(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            level TEXT NOT NULL,
+            topic TEXT NOT NULL,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
             createdAt INTEGER NOT NULL
           )
         ''');
@@ -112,6 +124,18 @@ class DatabaseService {
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               keyword TEXT NOT NULL,
               explanation TEXT NOT NULL,
+              createdAt INTEGER NOT NULL
+            )
+          ''');
+        }
+        if (oldVersion < 7) {
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS stories(
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              level TEXT NOT NULL,
+              topic TEXT NOT NULL,
+              title TEXT NOT NULL,
+              content TEXT NOT NULL,
               createdAt INTEGER NOT NULL
             )
           ''');
@@ -214,6 +238,25 @@ class DatabaseService {
   Future<int> deleteTopic(int id) async {
     final db = await _db;
     return await db.delete('topics', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // CREATE - "Hikaye Oku" ile üretilen hikayeyi kaydet
+  Future<int> insertStory(Story story) async {
+    final db = await _db;
+    return await db.insert('stories', story.toMap());
+  }
+
+  // READ - kaydedilmiş hikayeleri getir (en yeni üstte)
+  Future<List<Story>> getStories() async {
+    final db = await _db;
+    final maps = await db.query('stories', orderBy: 'createdAt DESC');
+    return maps.map((map) => Story.fromMap(map)).toList();
+  }
+
+  // DELETE - kaydedilmiş bir hikayeyi sil
+  Future<int> deleteStory(int id) async {
+    final db = await _db;
+    return await db.delete('stories', where: 'id = ?', whereArgs: [id]);
   }
 
   // UPDATE - tekrar sonucunu işle (doğru: streak +1, yanlış: streak 0'a döner)

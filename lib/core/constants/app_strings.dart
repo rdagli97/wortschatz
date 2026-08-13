@@ -47,6 +47,19 @@ class AppStrings {
       'Henüz bir şey sormadın. Merak ettiğin bir konuyu yaz!';
   static const String askAiGenericError = 'Konu anlatılamadı. Tekrar dener misin?';
 
+  // Hikaye Oku
+  static const String storyRead = 'Hikaye Oku';
+  static const String storyReadDesc = 'Seviyene uygun kısa bir Almanca hikaye okusun yapay zeka';
+  static const String storyTopicInputLabel =
+      'İstersen bir konu yaz (boş bırakırsan yapay zeka seçsin)';
+  static const String storyGenerateButton = 'Hikaye Oluştur';
+  static const String storyGenerating = 'Hikaye yazılıyor...';
+  static const String storyHistoryTitle = 'Daha Önce Okuduklarım';
+  static const String storyEmptyHistory =
+      'Henüz bir hikaye okumadın. Yukarıdan yeni bir tane oluştur!';
+  static const String storyComingSoon = 'Bu seviye için hikaye üretimi henüz eklenmedi.';
+  static const String storyDone = 'Bitti';
+
   // Çalışma alanları (Benim Çalışma Alanım altındaki koleksiyonlar)
   static const String defaultWorkspaceName = 'Varsayılan Çalışma Alanı';
   static const String newWorkspace = 'Yeni Çalışma Alanı';

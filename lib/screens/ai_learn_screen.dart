@@ -4,9 +4,9 @@ import '../core/constants/app_sizes.dart';
 import '../core/theme/app_colors.dart';
 import '../widgets/home_menu_button.dart';
 import 'ask_ai_screen.dart';
+import 'story_level_screen.dart';
 
-// "AI ile Öğren" altındaki özellikler. Şimdilik tek özellik var; ileride
-// buraya yeni yapay zeka destekli öğrenme araçları eklenecek.
+// "AI ile Öğren" altındaki özellikler.
 class AiLearnScreen extends StatelessWidget {
   const AiLearnScreen({super.key});
 
@@ -26,6 +26,17 @@ class AiLearnScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AskAiScreen()),
+              ),
+            ),
+            const SizedBox(height: AppSizes.md),
+            HomeMenuButton(
+              label: AppStrings.storyRead,
+              subtitle: AppStrings.storyReadDesc,
+              icon: Icons.auto_stories_outlined,
+              accentColor: AppColors.das,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const StoryLevelScreen()),
               ),
             ),
           ],
