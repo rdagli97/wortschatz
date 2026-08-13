@@ -143,6 +143,16 @@ class _TopicTile extends StatelessWidget {
     return '$day.$month.${date.year}';
   }
 
+  // Önizleme için markdown işaretlerini (#, *, -, |, `) temizler
+  String get _plainPreview {
+    return topic.explanation
+        .replaceAll(RegExp(r'^#{1,6}\s*', multiLine: true), '')
+        .replaceAll(RegExp(r'[*_`]'), '')
+        .replaceAll(RegExp(r'^[-|]\s*', multiLine: true), '')
+        .replaceAll('\n', ' ')
+        .trim();
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -164,7 +174,7 @@ class _TopicTile extends StatelessWidget {
                   Text(topic.keyword, style: AppTextStyles.title),
                   const SizedBox(height: AppSizes.xs),
                   Text(
-                    topic.explanation,
+                    _plainPreview,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.caption,

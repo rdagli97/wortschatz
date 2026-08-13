@@ -106,8 +106,13 @@ class GeminiService {
                 'text':
                     'Ben almanca da $keyword konusunu öğrenmekte çok zorlanıyorum. '
                     'Bana bunu çok basit bir şekilde anlat. Bir kaç örnek ile destekle. '
-                    'Düz metin olarak cevap ver, yıldız (*) ya da başlık gibi '
-                    'markdown biçimlendirmesi kullanma.',
+                    'Cevabını okunması ve anlaşılması kolay olacak şekilde Markdown '
+                    'ile biçimlendir: kısa başlıklar (##), önemli kelimeleri '
+                    '**kalın** yap, örnekleri madde işaretleriyle listele, ve '
+                    'karşılaştırma yaparken (örneğin iki kullanım arasındaki '
+                    'farkı gösterirken) bir Markdown tablosu kullan. Uzun, tek '
+                    'parça bir paragraf yazma; kısa ve göz gezdirmesi kolay '
+                    'bölümler halinde anlat.',
               },
             ],
           },

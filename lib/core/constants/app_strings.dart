@@ -13,6 +13,10 @@ class AppStrings {
   static const String verbToEnd = 'Fiili sona gönderir';
   static const String verbStaysSecond = 'Fiili 2. sırada bırakır';
   static const String presentTenseConjugation = 'Şimdiki Zaman Çekimi';
+  static const String verbCaseAkkusativ = 'Akkusativ alır';
+  static const String verbCaseDativ = 'Dativ alır';
+  static const String verbCaseBoth = 'Dativ + Akkusativ alır';
+  static const String verbCaseNominativ = 'Nesne almaz';
 
   // Kelimeler ana sayfası (Benim Çalışma Alanım / Goethe)
   static const String myWorkspace = 'Benim Çalışma Alanım';
@@ -67,6 +71,8 @@ class AppStrings {
   static const String exercisePracticeDesc = 'Kartları çevirerek gözden geçir';
   static const String exerciseTestTitle = 'Test Modu';
   static const String exerciseTestDesc = 'Almancasını yazarak kendini sına';
+  static const String practiceSetupWordCountQuestion =
+      'Kaç kelimeyi tekrar etmek istiyorsun?';
 
   // Test modu kurulumu
   static const String testSetupTitle = 'Test Modu';

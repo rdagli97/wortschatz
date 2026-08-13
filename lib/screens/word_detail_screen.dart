@@ -4,9 +4,11 @@ import '../core/constants/app_sizes.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
 import '../data/goethe_a1_conjugations.dart';
+import '../data/goethe_a1_verb_cases.dart';
 import '../data/goethe_a1_word_types.dart';
 import '../models/word.dart';
 import '../widgets/article_badge.dart';
+import '../widgets/verb_case_badge.dart';
 import '../widgets/verb_conjugation_table.dart';
 import '../widgets/verb_position_badge.dart';
 
@@ -15,15 +17,16 @@ class WordDetailScreen extends StatelessWidget {
 
   const WordDetailScreen({super.key, required this.word});
 
-  static const _verbTypes = {'separableVerb', 'irregularVerb', 'regularVerb'};
-
   @override
   Widget build(BuildContext context) {
-    final isVerb = _verbTypes.contains(word.wordType);
+    // Çoğul yalnızca isimler için anlamlı; fiil/bağlaç/diğer kelimelerde
+    // (article boş) her zaman boş olduğu için gösterilmez.
+    final hasPlural = word.article.isNotEmpty;
     final sendsVerbToEnd = word.wordType == 'conjunction'
         ? conjunctionSendsVerbToEnd(word.word)
         : null;
     final conjugation = conjugatePresentTense(word.word, word.wordType);
+    final objectCase = verbCase(word.word, word.wordType);
 
     return Scaffold(
       appBar: AppBar(title: Text(word.word)),
@@ -58,7 +61,7 @@ class WordDetailScreen extends StatelessWidget {
                     const SizedBox(height: AppSizes.sm),
                     Center(child: VerbPositionBadge(sendsVerbToEnd: sendsVerbToEnd)),
                   ],
-                  if (!isVerb) ...[
+                  if (hasPlural) ...[
                     const SizedBox(height: AppSizes.sm),
                     Text(
                       'Çoğul: ${word.plural}',
@@ -94,7 +97,13 @@ class WordDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(AppStrings.presentTenseConjugation, style: AppTextStyles.title),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppStrings.presentTenseConjugation, style: AppTextStyles.title),
+                        if (objectCase != null) VerbCaseBadge(verbCase: objectCase),
+                      ],
+                    ),
                     const SizedBox(height: AppSizes.sm),
                     VerbConjugationTable(conjugation: conjugation),
                   ],

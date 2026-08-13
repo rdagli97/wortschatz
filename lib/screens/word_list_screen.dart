@@ -68,11 +68,21 @@ class WordListScreen extends ConsumerWidget {
                 accentColor: AppColors.primary,
                 onTap: () {
                   Navigator.pop(sheetContext);
-                  Navigator.push(
+                  _showWordCountSheet(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => FlashcardScreen(words: words),
-                    ),
+                    words,
+                    title: AppStrings.exercisePracticeTitle,
+                    question: AppStrings.practiceSetupWordCountQuestion,
+                    buttonLabel: AppStrings.testSetupStart,
+                    onConfirm: (count) {
+                      final selected = ([...words]..shuffle()).take(count).toList();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => FlashcardScreen(words: selected),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -84,7 +94,21 @@ class WordListScreen extends ConsumerWidget {
                 accentColor: AppColors.das,
                 onTap: () {
                   Navigator.pop(sheetContext);
-                  _showTestModeCountSheet(context, words);
+                  _showWordCountSheet(
+                    context,
+                    words,
+                    title: AppStrings.testSetupTitle,
+                    question: AppStrings.testSetupWordCountQuestion,
+                    buttonLabel: AppStrings.testSetupStart,
+                    onConfirm: (count) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TestModeScreen(words: words, count: count),
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
             ],
@@ -94,8 +118,17 @@ class WordListScreen extends ConsumerWidget {
     );
   }
 
-  // "Test Modu" seçilince: kaç kelimeden sınav olunacağını sor
-  void _showTestModeCountSheet(BuildContext context, List<Word> words) {
+  // Tekrar Et / Test Modu seçilince: kaç kelime ile devam edileceğini sor.
+  // Liste büyüdükçe (ör. 500 kelime) kullanıcının hepsini değil, seçtiği
+  // kadarını çalışabilmesi için.
+  void _showWordCountSheet(
+    BuildContext context,
+    List<Word> words, {
+    required String title,
+    required String question,
+    required String buttonLabel,
+    required void Function(int count) onConfirm,
+  }) {
     int selectedCount = words.length;
     showModalBottomSheet(
       context: context,
@@ -111,9 +144,9 @@ class WordListScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppStrings.testSetupTitle, style: AppTextStyles.title),
+                Text(title, style: AppTextStyles.title),
                 const SizedBox(height: AppSizes.xs),
-                Text(AppStrings.testSetupWordCountQuestion, style: AppTextStyles.caption),
+                Text(question, style: AppTextStyles.caption),
                 const SizedBox(height: AppSizes.md),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
@@ -145,12 +178,7 @@ class WordListScreen extends ConsumerWidget {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(sheetContext);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TestModeScreen(words: words, count: selectedCount),
-                      ),
-                    );
+                    onConfirm(selectedCount);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -160,7 +188,7 @@ class WordListScreen extends ConsumerWidget {
                     ),
                   ),
                   child: Text(
-                    AppStrings.testSetupStart,
+                    buttonLabel,
                     style: AppTextStyles.title.copyWith(color: Colors.white),
                   ),
                 ),
