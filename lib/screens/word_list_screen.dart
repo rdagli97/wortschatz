@@ -11,21 +11,28 @@ import '../widgets/word_tile.dart';
 import 'word_detail_screen.dart';
 
 class WordListScreen extends ConsumerWidget {
-  // null ise tüm kelimeler gösterilir
+  // null ise kişisel kelimeler ('Benim Çalışma Alanım'), doluysa o Goethe
+  // seviyesindeki kelimeler ('A1'/'A2'/'B1') gösterilir
+  final String? level;
+  // null ise seviye içindeki tüm kelimeler gösterilir
   final WordCategory? category;
   final String title;
   final String emptyMessage;
 
   const WordListScreen({
     super.key,
+    this.level,
     this.category,
     this.title = AppStrings.myWords,
     this.emptyMessage = AppStrings.noWordsYet,
   });
 
   List<Word> _filter(List<Word> words) {
-    if (category == null) return words;
-    return words.where((w) => w.category == category).toList();
+    var result = words.where((w) => w.level == level);
+    if (category != null) {
+      result = result.where((w) => w.category == category);
+    }
+    return result.toList();
   }
 
   @override
@@ -49,11 +56,13 @@ class WordListScreen extends ConsumerWidget {
               final word = filtered[index];
               return WordTile(
                 word: word,
-                onDelete: () {
-                  ref
-                      .read(addWordControllerProvider.notifier)
-                      .deleteWord(word.id!);
-                },
+                onDelete: level != null
+                    ? null
+                    : () {
+                        ref
+                            .read(addWordControllerProvider.notifier)
+                            .deleteWord(word.id!);
+                      },
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(

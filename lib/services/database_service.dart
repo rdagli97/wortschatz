@@ -18,7 +18,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE words(
@@ -32,11 +32,12 @@ class DatabaseService {
             exampleTranslationEn TEXT NOT NULL,
             exampleTranslationTr TEXT NOT NULL,
             correctStreak INTEGER NOT NULL DEFAULT 0,
-            reviewCount INTEGER NOT NULL DEFAULT 0
+            reviewCount INTEGER NOT NULL DEFAULT 0,
+            level TEXT
           )
         ''');
 
-        // Başlangıç kelimeleri (Goethe A1'den seçme)
+        // Başlangıç kelimeleri (kullanıcının kendi çalışma alanı)
         final seedWords = _seedWords();
         for (final word in seedWords) {
           await db.insert('words', word.toMap());
@@ -50,6 +51,9 @@ class DatabaseService {
           await db.execute(
             'ALTER TABLE words ADD COLUMN reviewCount INTEGER NOT NULL DEFAULT 0',
           );
+        }
+        if (oldVersion < 3) {
+          await db.execute('ALTER TABLE words ADD COLUMN level TEXT');
         }
       },
     );
@@ -72,6 +76,29 @@ class DatabaseService {
   Future<int> deleteWord(int id) async {
     final db = await _db;
     return await db.delete('words', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // SEED - Goethe listelerini yükler; aynı seviyede aynı kelime zaten varsa atlar
+  // (seeder birden fazla kez çalıştırılsa da kelimeler çoğalmaz)
+  Future<int> insertWordsIfAbsent(List<Word> words) async {
+    final db = await _db;
+    final existing = await db.query('words', columns: ['word', 'level']);
+    final existingKeys = existing
+        .map((row) =>
+            '${(row['word'] as String).trim().toLowerCase()}|${row['level'] as String? ?? ''}')
+        .toSet();
+
+    var inserted = 0;
+    final batch = db.batch();
+    for (final word in words) {
+      final key = '${word.word.trim().toLowerCase()}|${word.level ?? ''}';
+      if (existingKeys.contains(key)) continue;
+      existingKeys.add(key);
+      batch.insert('words', word.toMap());
+      inserted++;
+    }
+    await batch.commit(noResult: true);
+    return inserted;
   }
 
   // UPDATE - tekrar sonucunu işle (doğru: streak +1, yanlış: streak 0'a döner)

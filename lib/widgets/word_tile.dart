@@ -7,13 +7,13 @@ import 'article_badge.dart';
 
 class WordTile extends StatelessWidget {
   final Word word;
-  final VoidCallback onDelete;
+  final VoidCallback? onDelete;
   final VoidCallback? onTap;
 
   const WordTile({
     super.key,
     required this.word,
-    required this.onDelete,
+    this.onDelete,
     this.onTap,
   });
 
@@ -43,10 +43,11 @@ class WordTile extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.textMuted),
-              onPressed: onDelete,
-            ),
+            if (onDelete != null)
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: AppColors.textMuted),
+                onPressed: onDelete,
+              ),
           ],
         ),
       ),

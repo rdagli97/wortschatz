@@ -10,6 +10,16 @@ class AppStrings {
   static const String conjunctions = 'Bağlaçlar';
   static const String comingSoon = 'Yakında';
 
+  // Kelimeler ana sayfası (Benim Çalışma Alanım / Goethe)
+  static const String myWorkspace = 'Benim Çalışma Alanım';
+  static const String myWorkspaceDesc = 'Kendi eklediğin kelimeler';
+  static const String goethe = 'Goethe';
+  static const String goetheDesc = 'Goethe seviyelerine göre hazır listeler';
+  static const String goetheA1 = 'A1';
+  static const String goetheA2 = 'A2';
+  static const String goetheB1 = 'B1';
+  static const String noGoetheWordsYet = 'Bu seviyede henüz kelime yüklenmedi.';
+
   // Kelime kategorileri
   static const String allWords = 'Tüm Kelimeler';
   static const String newlyAddedWords = 'Yeni Eklenenler';
@@ -40,6 +50,38 @@ class AppStrings {
   static const String exampleSentence = 'Örnek Cümle';
   static const String exampleTranslation = 'Türkçe Çevirisi';
   static const String save = 'Kaydet';
+
+  // Kelime ekleme modu seçimi
+  static const String addWordManual = 'Manuel Ekle';
+  static const String addWordManualDesc = 'Tüm alanları kendin doldur';
+  static const String addWordAi = 'Yapay Zeka ile Ekle';
+  static const String addWordAiDesc = 'Sadece kelimeyi yaz, gerisini AI doldursun';
+
+  // Yapay zeka modu
+  static const String aiAddWordTitle = 'Yapay Zeka ile Ekle';
+  static const String aiWordInputLabel = 'Almanca Kelime';
+  static const String aiGenerate = 'Getir';
+  static const String aiGenerating = 'Kelime bilgileri hazırlanıyor...';
+  static const String aiReviewHint = 'AI\'ın doldurduğu bilgileri kontrol et, istersen düzenle.';
+  static const String aiNoApiKeyError =
+      'Önce ayarlardan Gemini API anahtarını girmelisin.';
+  static const String aiGenericError =
+      'Kelime bilgileri alınamadı. Tekrar dener misin?';
+  static const String aiInvalidKeyError =
+      'API anahtarı geçersiz görünüyor. Ayarlardan kontrol et.';
+  static const String goToSettings = 'Ayarlara Git';
+
+  // Ayarlar
+  static const String settings = 'Ayarlar';
+  static const String geminiApiKey = 'Google Gemini API Anahtarı';
+  static const String geminiApiKeyHint = 'AIzaSy...';
+  static const String apiKeySaved = 'API anahtarı kaydedildi.';
+  static const String apiKeyCleared = 'API anahtarı silindi.';
+  static const String clearApiKey = 'Anahtarı Sil';
+  static const String apiKeyInfo =
+      'Anahtarın sadece bu cihazda, şifreli olarak saklanır ve yalnızca '
+      'Google\'a kelime bilgisi almak için gönderilir. Ücretsiz bir anahtarı '
+      'aistudio.google.com üzerinden alabilirsin.';
 
   // Flash card
   static const String tapToReveal = 'Görmek için dokun';

@@ -5,6 +5,7 @@ import '../core/constants/app_sizes.dart';
 
 class HomeMenuButton extends StatelessWidget {
   final String label;
+  final String? subtitle;
   final IconData icon;
   final Color accentColor;
   final bool enabled;
@@ -17,6 +18,7 @@ class HomeMenuButton extends StatelessWidget {
     required this.accentColor,
     required this.onTap,
     this.enabled = true,
+    this.subtitle,
   });
 
   @override
@@ -51,11 +53,21 @@ class HomeMenuButton extends StatelessWidget {
             ),
             const SizedBox(width: AppSizes.md),
             Expanded(
-              child: Text(
-                label,
-                style: AppTextStyles.title.copyWith(
-                  color: enabled ? AppColors.textPrimary : AppColors.textMuted,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: AppTextStyles.title.copyWith(
+                      color: enabled ? AppColors.textPrimary : AppColors.textMuted,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: AppSizes.xs),
+                    Text(subtitle!, style: AppTextStyles.caption),
+                  ],
+                ],
               ),
             ),
             if (!enabled)

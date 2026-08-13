@@ -6,15 +6,63 @@ import '../core/theme/app_text_styles.dart';
 import '../models/word.dart';
 import '../widgets/home_menu_button.dart';
 import 'add_word_screen.dart';
+import 'ai_add_word_screen.dart';
 import 'word_list_screen.dart';
 
 class WordCategoriesScreen extends StatelessWidget {
   const WordCategoriesScreen({super.key});
 
+  void _showAddWordModeSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusLg)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSizes.md),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              HomeMenuButton(
+                label: AppStrings.addWordManual,
+                subtitle: AppStrings.addWordManualDesc,
+                icon: Icons.edit_note,
+                accentColor: AppColors.primary,
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AddWordScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSizes.md),
+              HomeMenuButton(
+                label: AppStrings.addWordAi,
+                subtitle: AppStrings.addWordAiDesc,
+                icon: Icons.auto_awesome,
+                accentColor: AppColors.das,
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AiAddWordScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.words)),
+      appBar: AppBar(title: const Text(AppStrings.myWorkspace)),
       body: Padding(
         padding: const EdgeInsets.all(AppSizes.md),
         child: Column(
@@ -81,10 +129,7 @@ class WordCategoriesScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AddWordScreen()),
-        ),
+        onPressed: () => _showAddWordModeSheet(context),
         icon: const Icon(Icons.add, color: Colors.white),
         label: Text(
           AppStrings.addWord,

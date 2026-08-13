@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_strings.dart';
+import '../data/goethe_a1_words.dart';
 import '../models/word.dart';
 import '../services/database_service.dart';
 
@@ -11,6 +12,16 @@ final databaseServiceProvider = Provider<DatabaseService>((ref) {
 // Tüm kelimeleri getiren FutureProvider (liste ekranının kaynağı)
 final wordsProvider = FutureProvider<List<Word>>((ref) async {
   return ref.watch(databaseServiceProvider).getWords();
+});
+
+// Goethe A1 listesini bir kere (uygulama her açılışında, tekrarsız olarak)
+// veritabanına yükler. HomeScreen tarafından tetiklenir.
+final goetheSeedProvider = FutureProvider<void>((ref) async {
+  final db = ref.read(databaseServiceProvider);
+  final inserted = await db.insertWordsIfAbsent(goetheA1Words());
+  if (inserted > 0) {
+    ref.invalidate(wordsProvider);
+  }
 });
 
 // Kelime ekleme işleminin durumu
@@ -38,9 +49,13 @@ class AddWordController extends Notifier<AddWordState> {
       final db = ref.read(databaseServiceProvider);
       final existingWords = await db.getWords();
       // tam eşleşme (kelime metni birebir aynı) — "Zeit" ile "Hochzeit" gibi
-      // farklı kelimeleri birbirine karıştırmaz
+      // farklı kelimeleri birbirine karıştırmaz. Sadece kişisel kelimelerle
+      // kıyaslanır; Goethe seed listeleri ayrı bir alan olduğu için burada
+      // "zaten var" saymaz.
       final isDuplicate = existingWords.any(
-        (w) => w.word.trim().toLowerCase() == word.word.trim().toLowerCase(),
+        (w) =>
+            w.level == null &&
+            w.word.trim().toLowerCase() == word.word.trim().toLowerCase(),
       );
       if (isDuplicate) {
         state = state.copyWith(

@@ -13,6 +13,7 @@ class Word {
   final String exampleTranslationTr; // Ev büyük.
   final int correctStreak;           // ardışık doğru bilme sayısı (yanlışta 0'a döner)
   final int reviewCount;             // toplam tekrar (doğru+yanlış) sayısı
+  final String? level;               // null = kullanıcının kendi kelimesi, 'A1'/'A2'/'B1' = Goethe listesi
 
   const Word({
     this.id,
@@ -26,6 +27,7 @@ class Word {
     required this.exampleTranslationTr,
     this.correctStreak = 0,
     this.reviewCount = 0,
+    this.level,
   });
 
   // Kaç kez tekrar edildiğine ve ardışık doğru sayısına göre kategori
@@ -51,6 +53,7 @@ class Word {
       'exampleTranslationTr': exampleTranslationTr,
       'correctStreak': correctStreak,
       'reviewCount': reviewCount,
+      'level': level,
     };
   }
 
@@ -68,6 +71,7 @@ class Word {
       exampleTranslationTr: map['exampleTranslationTr'] as String? ?? '',
       correctStreak: map['correctStreak'] as int? ?? 0,
       reviewCount: map['reviewCount'] as int? ?? 0,
+      level: map['level'] as String?,
     );
   }
 }
