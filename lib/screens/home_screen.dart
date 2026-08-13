@@ -9,7 +9,6 @@ import '../widgets/home_menu_button.dart';
 import 'ai_learn_screen.dart';
 import 'goethe_screen.dart';
 import 'settings_screen.dart';
-import 'word_type_menu_screen.dart';
 import 'workspaces_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -17,8 +16,10 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Goethe A1 listesini bir kere, tekrarsız olarak veritabanına yükler.
+    // Goethe A1 listesini ve varsayılan çalışma alanının örnek fiil/bağlaç
+    // kelimelerini bir kere, tekrarsız olarak veritabanına yükler.
     ref.watch(goetheSeedProvider);
+    ref.watch(defaultWorkspaceSeedProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -48,12 +49,7 @@ class HomeScreen extends ConsumerWidget {
               accentColor: AppColors.primary,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const WordTypeMenuScreen(
-                    title: AppStrings.myWorkspace,
-                    wordsDestination: WorkspacesScreen(),
-                  ),
-                ),
+                MaterialPageRoute(builder: (_) => const WorkspacesScreen()),
               ),
             ),
             const SizedBox(height: AppSizes.md),

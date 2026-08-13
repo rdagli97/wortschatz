@@ -5,6 +5,20 @@ import '../data/goethe_a1_words.dart';
 import '../models/word.dart';
 import '../services/database_service.dart';
 
+// Varsayılan çalışma alanına örnek olarak eklenen düzenli/düzensiz/ayrılabilir
+// fiiller ile bağlaçlar — Goethe A1 verisinden, zaten dilbilgisi olarak
+// doğrulanmış (çekim/nesne durumu/fiil sırası bilgisi hazır) bir alt küme.
+const _defaultWorkspaceSeedWordNames = {
+  // Düzenli fiiller
+  'machen', 'spielen', 'kaufen', 'kochen', 'arbeiten', 'wohnen', 'suchen', 'lernen',
+  // Düzensiz fiiller
+  'gehen', 'kommen', 'sehen', 'essen', 'trinken', 'sprechen', 'haben', 'sein',
+  // Ayrılabilir fiiller
+  'aufstehen', 'einkaufen', 'anrufen', 'fernsehen', 'ankommen', 'aufhören',
+  // Bağlaçlar
+  'und', 'oder', 'aber', 'denn',
+};
+
 // DatabaseService'e erişim
 final databaseServiceProvider = Provider<DatabaseService>((ref) {
   return DatabaseService();
@@ -30,6 +44,40 @@ final goetheSeedProvider = FutureProvider<void>((ref) async {
       .toList();
   await db.insertWordsIfAbsent(classifiedWords);
   ref.invalidate(wordsProvider);
+});
+
+// Varsayılan çalışma alanına, "Düzenli/Düzensiz/Ayrılabilir Fiiller" ve
+// "Bağlaçlar" bölümlerinin boş görünmemesi için örnek kelimeler ekler.
+// Kullanıcı bunları silebilir; sadece daha önce eklenmemişse eklenir.
+// HomeScreen tarafından tetiklenir.
+final defaultWorkspaceSeedProvider = FutureProvider<void>((ref) async {
+  final db = ref.read(databaseServiceProvider);
+  final workspaces = await db.getWorkspaces();
+  final workspaceId = workspaces
+      .where((w) => w.isDefault)
+      .map((w) => w.id)
+      .whereType<int>()
+      .firstOrNull;
+  if (workspaceId == null) return;
+
+  final seedWords = goetheA1Words()
+      .where((w) => _defaultWorkspaceSeedWordNames.contains(w.word.toLowerCase()))
+      .map((w) => Word(
+            article: w.article,
+            word: w.word,
+            meaningEn: w.meaningEn,
+            meaningTr: w.meaningTr,
+            plural: w.plural,
+            exampleSentence: w.exampleSentence,
+            exampleTranslationEn: w.exampleTranslationEn,
+            exampleTranslationTr: w.exampleTranslationTr,
+            workspaceId: workspaceId,
+            wordType: classifyGoetheWordType(w.word),
+          ))
+      .toList();
+
+  final inserted = await db.insertWordsIfAbsentForWorkspace(workspaceId, seedWords);
+  if (inserted > 0) ref.invalidate(wordsProvider);
 });
 
 // Kelime ekleme işleminin durumu
@@ -74,7 +122,13 @@ class AddWordController extends Notifier<AddWordState> {
         return false;
       }
 
-      await db.insertWord(word);
+      // Artikeli olmayan (AI ile eklenmiş) kelime bilinen bir fiil/bağlaçsa
+      // otomatik olarak ilgili türle etiketlenir; bilinmiyorsa Kelimeler'de kalır.
+      final classified = word.article.isEmpty
+          ? word.copyWith(wordType: classifyGoetheWordType(word.word))
+          : word;
+
+      await db.insertWord(classified);
       // Kelime listesini yenile (yeni kelime görünsün)
       ref.invalidate(wordsProvider);
       state = state.copyWith(isSaving: false);

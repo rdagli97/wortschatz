@@ -18,8 +18,9 @@ class WordListScreen extends ConsumerWidget {
   // doluysa o Goethe seviyesindeki kelimeler ('A1'/'A2'/'B1') gösterilir;
   // null ise workspaceId'ye ait kişisel kelimeler gösterilir
   final String? level;
-  // level doluyken kelime türü filtresi: null = Kelimeler (isim/diğer),
-  // 'separableVerb'/'irregularVerb'/'regularVerb'/'conjunction' = ilgili tür
+  // kelime türü filtresi (hem Goethe hem çalışma alanı için): null =
+  // Kelimeler (isim/diğer), 'separableVerb'/'irregularVerb'/'regularVerb'/
+  // 'conjunction' = ilgili tür
   final String? wordType;
   // level null iken kişisel kelimenin ait olduğu çalışma alanı
   final int? workspaceId;
@@ -41,7 +42,8 @@ class WordListScreen extends ConsumerWidget {
   List<Word> _filter(List<Word> words) {
     var result = level != null
         ? words.where((w) => w.level == level && w.wordType == wordType)
-        : words.where((w) => w.level == null && w.workspaceId == workspaceId);
+        : words.where((w) =>
+            w.level == null && w.workspaceId == workspaceId && w.wordType == wordType);
     if (category != null) {
       result = result.where((w) => w.category == category);
     }

@@ -10,7 +10,7 @@ import '../providers/word_provider.dart';
 import '../providers/workspace_provider.dart';
 import '../widgets/word_progress_card.dart';
 import '../widgets/wort_text_field.dart';
-import 'word_categories_screen.dart';
+import 'workspace_word_type_screen.dart';
 
 // "Benim Çalışma Alanım" altındaki çalışma alanlarının listesi. Varsayılan
 // çalışma alanı (seeder ile gelen kelimeler) burada, kullanıcının kendi
@@ -141,7 +141,7 @@ class WorkspacesScreen extends ConsumerWidget {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => WordCategoriesScreen(
+                            builder: (_) => WorkspaceWordTypeScreen(
                               workspaceId: workspace.id!,
                               title: workspace.name,
                             ),

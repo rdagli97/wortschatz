@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_strings.dart';
 import '../core/utils/german_text.dart';
+import '../data/goethe_a1_word_types.dart';
 import '../models/word.dart';
 import '../services/gemini_service.dart';
 import 'ai_word_provider.dart';
@@ -108,6 +109,9 @@ class BulkAddWordController extends Notifier<BulkAddState> {
           exampleTranslationEn: generated.exampleTranslationEn,
           exampleTranslationTr: generated.exampleTranslationTr,
           workspaceId: workspaceId,
+          wordType: generated.article.isEmpty
+              ? classifyGoetheWordType(generated.word)
+              : null,
         ));
         addedInBatch.add(normalized);
         _setResult(i, BulkWordResult(word: word, status: BulkWordStatus.added));

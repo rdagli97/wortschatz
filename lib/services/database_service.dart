@@ -221,6 +221,31 @@ class DatabaseService {
     return inserted;
   }
 
+  // SEED - bir çalışma alanına, orada aynı isimde kelime yoksa ekler
+  // (büyük/küçük harfe duyarlı eşleştirme, ör. "Essen"/"essen" karışmasın).
+  Future<int> insertWordsIfAbsentForWorkspace(int workspaceId, List<Word> words) async {
+    final db = await _db;
+    final existing = await db.query(
+      'words',
+      columns: ['word'],
+      where: 'workspaceId = ? AND level IS NULL',
+      whereArgs: [workspaceId],
+    );
+    final existingWords = existing.map((row) => (row['word'] as String).trim()).toSet();
+
+    var inserted = 0;
+    final batch = db.batch();
+    for (final word in words) {
+      final key = word.word.trim();
+      if (existingWords.contains(key)) continue;
+      existingWords.add(key);
+      batch.insert('words', word.toMap());
+      inserted++;
+    }
+    await batch.commit(noResult: true);
+    return inserted;
+  }
+
   // CREATE - "Merak Ettiğini Sor" ile üretilen konu anlatımını kaydet
   Future<int> insertTopic(Topic topic) async {
     final db = await _db;

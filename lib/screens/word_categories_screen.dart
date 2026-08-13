@@ -12,11 +12,15 @@ import 'word_list_screen.dart';
 
 class WordCategoriesScreen extends StatelessWidget {
   final int workspaceId;
+  // null = Kelimeler (isim/diğer); 'separableVerb'/'irregularVerb'/
+  // 'regularVerb'/'conjunction' = ilgili kelime türü
+  final String? wordType;
   final String title;
 
   const WordCategoriesScreen({
     super.key,
     required this.workspaceId,
+    this.wordType,
     this.title = AppStrings.words,
   });
 
@@ -102,7 +106,10 @@ class WordCategoriesScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => WordListScreen(workspaceId: workspaceId),
+                  builder: (_) => WordListScreen(
+                    workspaceId: workspaceId,
+                    wordType: wordType,
+                  ),
                 ),
               ),
             ),
@@ -116,6 +123,7 @@ class WordCategoriesScreen extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => WordListScreen(
                     workspaceId: workspaceId,
+                    wordType: wordType,
                     category: WordCategory.newWord,
                     title: AppStrings.newlyAddedWords,
                     emptyMessage: AppStrings.noNewWordsYet,
@@ -133,6 +141,7 @@ class WordCategoriesScreen extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => WordListScreen(
                     workspaceId: workspaceId,
+                    wordType: wordType,
                     category: WordCategory.difficult,
                     title: AppStrings.difficultWords,
                     emptyMessage: AppStrings.noDifficultWordsYet,
@@ -150,6 +159,7 @@ class WordCategoriesScreen extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => WordListScreen(
                     workspaceId: workspaceId,
+                    wordType: wordType,
                     category: WordCategory.wellLearned,
                     title: AppStrings.wellLearnedWords,
                     emptyMessage: AppStrings.noWellLearnedWordsYet,
