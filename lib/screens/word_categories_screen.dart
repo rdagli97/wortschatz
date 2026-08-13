@@ -10,7 +10,14 @@ import 'ai_add_word_screen.dart';
 import 'word_list_screen.dart';
 
 class WordCategoriesScreen extends StatelessWidget {
-  const WordCategoriesScreen({super.key});
+  final int workspaceId;
+  final String title;
+
+  const WordCategoriesScreen({
+    super.key,
+    required this.workspaceId,
+    this.title = AppStrings.words,
+  });
 
   void _showAddWordModeSheet(BuildContext context) {
     showModalBottomSheet(
@@ -34,7 +41,9 @@ class WordCategoriesScreen extends StatelessWidget {
                   Navigator.pop(sheetContext);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AddWordScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => AddWordScreen(workspaceId: workspaceId),
+                    ),
                   );
                 },
               ),
@@ -48,7 +57,9 @@ class WordCategoriesScreen extends StatelessWidget {
                   Navigator.pop(sheetContext);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AiAddWordScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => AiAddWordScreen(workspaceId: workspaceId),
+                    ),
                   );
                 },
               ),
@@ -62,7 +73,7 @@ class WordCategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.words)),
+      appBar: AppBar(title: Text(title)),
       body: Padding(
         padding: const EdgeInsets.all(AppSizes.md),
         child: Column(
@@ -73,7 +84,9 @@ class WordCategoriesScreen extends StatelessWidget {
               accentColor: AppColors.primary,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const WordListScreen()),
+                MaterialPageRoute(
+                  builder: (_) => WordListScreen(workspaceId: workspaceId),
+                ),
               ),
             ),
             const SizedBox(height: AppSizes.md),
@@ -84,7 +97,8 @@ class WordCategoriesScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const WordListScreen(
+                  builder: (_) => WordListScreen(
+                    workspaceId: workspaceId,
                     category: WordCategory.newWord,
                     title: AppStrings.newlyAddedWords,
                     emptyMessage: AppStrings.noNewWordsYet,
@@ -100,7 +114,8 @@ class WordCategoriesScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const WordListScreen(
+                  builder: (_) => WordListScreen(
+                    workspaceId: workspaceId,
                     category: WordCategory.difficult,
                     title: AppStrings.difficultWords,
                     emptyMessage: AppStrings.noDifficultWordsYet,
@@ -116,7 +131,8 @@ class WordCategoriesScreen extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const WordListScreen(
+                  builder: (_) => WordListScreen(
+                    workspaceId: workspaceId,
                     category: WordCategory.wellLearned,
                     title: AppStrings.wellLearnedWords,
                     emptyMessage: AppStrings.noWellLearnedWordsYet,

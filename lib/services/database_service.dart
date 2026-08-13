@@ -1,6 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import '../core/constants/app_strings.dart';
 import '../models/word.dart';
+import '../models/workspace.dart';
 
 class DatabaseService {
   static Database? _database;
@@ -18,8 +20,20 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE workspaces(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            isDefault INTEGER NOT NULL DEFAULT 0
+          )
+        ''');
+        final defaultWorkspaceId = await db.insert('workspaces', {
+          'name': AppStrings.defaultWorkspaceName,
+          'isDefault': 1,
+        });
+
         await db.execute('''
           CREATE TABLE words(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,14 +47,16 @@ class DatabaseService {
             exampleTranslationTr TEXT NOT NULL,
             correctStreak INTEGER NOT NULL DEFAULT 0,
             reviewCount INTEGER NOT NULL DEFAULT 0,
-            level TEXT
+            level TEXT,
+            workspaceId INTEGER
           )
         ''');
 
-        // Başlangıç kelimeleri (kullanıcının kendi çalışma alanı)
+        // Başlangıç kelimeleri (varsayılan çalışma alanına ait)
         final seedWords = _seedWords();
         for (final word in seedWords) {
-          await db.insert('words', word.toMap());
+          final map = word.toMap()..['workspaceId'] = defaultWorkspaceId;
+          await db.insert('words', map);
         }
       },
       onUpgrade: (db, oldVersion, newVersion) async {
@@ -54,6 +70,27 @@ class DatabaseService {
         }
         if (oldVersion < 3) {
           await db.execute('ALTER TABLE words ADD COLUMN level TEXT');
+        }
+        if (oldVersion < 4) {
+          await db.execute('ALTER TABLE words ADD COLUMN workspaceId INTEGER');
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS workspaces(
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT NOT NULL,
+              isDefault INTEGER NOT NULL DEFAULT 0
+            )
+          ''');
+          // Var olan kişisel kelimeler (level yok, henüz çalışma alanı da yok)
+          // yeni oluşturulan varsayılan çalışma alanına taşınır.
+          final defaultWorkspaceId = await db.insert('workspaces', {
+            'name': AppStrings.defaultWorkspaceName,
+            'isDefault': 1,
+          });
+          await db.update(
+            'words',
+            {'workspaceId': defaultWorkspaceId},
+            where: 'level IS NULL AND workspaceId IS NULL',
+          );
         }
       },
     );
@@ -76,6 +113,28 @@ class DatabaseService {
   Future<int> deleteWord(int id) async {
     final db = await _db;
     return await db.delete('words', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // READ - tüm çalışma alanlarını getir (varsayılan en üstte)
+  Future<List<Workspace>> getWorkspaces() async {
+    final db = await _db;
+    final maps = await db.query('workspaces', orderBy: 'isDefault DESC, id ASC');
+    return maps.map((map) => Workspace.fromMap(map)).toList();
+  }
+
+  // CREATE - yeni, boş bir çalışma alanı oluştur
+  Future<int> createWorkspace(String name) async {
+    final db = await _db;
+    return await db.insert('workspaces', {'name': name, 'isDefault': 0});
+  }
+
+  // DELETE - çalışma alanını ve içindeki tüm kelimeleri sil
+  Future<void> deleteWorkspace(int id) async {
+    final db = await _db;
+    await db.transaction((txn) async {
+      await txn.delete('words', where: 'workspaceId = ?', whereArgs: [id]);
+      await txn.delete('workspaces', where: 'id = ?', whereArgs: [id]);
+    });
   }
 
   // SEED - Goethe listelerini yükler; aynı seviyede aynı kelime zaten varsa atlar

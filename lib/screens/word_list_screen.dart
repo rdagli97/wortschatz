@@ -14,10 +14,12 @@ import 'test_mode_screen.dart';
 import 'word_detail_screen.dart';
 
 class WordListScreen extends ConsumerWidget {
-  // null ise kişisel kelimeler ('Benim Çalışma Alanım'), doluysa o Goethe
-  // seviyesindeki kelimeler ('A1'/'A2'/'B1') gösterilir
+  // doluysa o Goethe seviyesindeki kelimeler ('A1'/'A2'/'B1') gösterilir;
+  // null ise workspaceId'ye ait kişisel kelimeler gösterilir
   final String? level;
-  // null ise seviye içindeki tüm kelimeler gösterilir
+  // level null iken kişisel kelimenin ait olduğu çalışma alanı
+  final int? workspaceId;
+  // null ise seviye/çalışma alanı içindeki tüm kelimeler gösterilir
   final WordCategory? category;
   final String title;
   final String emptyMessage;
@@ -25,13 +27,16 @@ class WordListScreen extends ConsumerWidget {
   const WordListScreen({
     super.key,
     this.level,
+    this.workspaceId,
     this.category,
     this.title = AppStrings.myWords,
     this.emptyMessage = AppStrings.noWordsYet,
   });
 
   List<Word> _filter(List<Word> words) {
-    var result = words.where((w) => w.level == level);
+    var result = level != null
+        ? words.where((w) => w.level == level)
+        : words.where((w) => w.level == null && w.workspaceId == workspaceId);
     if (category != null) {
       result = result.where((w) => w.category == category);
     }

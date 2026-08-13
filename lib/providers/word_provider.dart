@@ -49,12 +49,13 @@ class AddWordController extends Notifier<AddWordState> {
       final db = ref.read(databaseServiceProvider);
       final existingWords = await db.getWords();
       // tam eşleşme (kelime metni birebir aynı) — "Zeit" ile "Hochzeit" gibi
-      // farklı kelimeleri birbirine karıştırmaz. Sadece kişisel kelimelerle
-      // kıyaslanır; Goethe seed listeleri ayrı bir alan olduğu için burada
-      // "zaten var" saymaz.
+      // farklı kelimeleri birbirine karıştırmaz. Sadece aynı çalışma alanındaki
+      // kişisel kelimelerle kıyaslanır; başka bir çalışma alanında veya Goethe
+      // seed listelerinde aynı kelime olması "zaten var" saymaz.
       final isDuplicate = existingWords.any(
         (w) =>
             w.level == null &&
+            w.workspaceId == word.workspaceId &&
             w.word.trim().toLowerCase() == word.word.trim().toLowerCase(),
       );
       if (isDuplicate) {

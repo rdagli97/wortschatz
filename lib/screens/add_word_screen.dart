@@ -10,7 +10,9 @@ import '../widgets/wort_text_field.dart';
 import '../widgets/article_selector.dart';
 
 class AddWordScreen extends ConsumerStatefulWidget {
-  const AddWordScreen({super.key});
+  final int workspaceId;
+
+  const AddWordScreen({super.key, required this.workspaceId});
 
   @override
   ConsumerState<AddWordScreen> createState() => _AddWordScreenState();
@@ -54,6 +56,7 @@ class _AddWordScreenState extends ConsumerState<AddWordScreen> {
       exampleSentence: _sentenceController.text.trim(),
       exampleTranslationEn: _translationEnController.text.trim(),
       exampleTranslationTr: _translationTrController.text.trim(),
+      workspaceId: widget.workspaceId,
     );
 
     final success =

@@ -21,6 +21,16 @@ class AppStrings {
   static const String goetheB1 = 'B1';
   static const String noGoetheWordsYet = 'Bu seviyede henüz kelime yüklenmedi.';
 
+  // Çalışma alanları (Benim Çalışma Alanım altındaki koleksiyonlar)
+  static const String defaultWorkspaceName = 'Varsayılan Çalışma Alanı';
+  static const String newWorkspace = 'Yeni Çalışma Alanı';
+  static const String newWorkspaceDialogTitle = 'Yeni Çalışma Alanı Oluştur';
+  static const String workspaceNameLabel = 'Çalışma Alanı Adı';
+  static const String cancel = 'İptal';
+  static const String create = 'Oluştur';
+  static const String delete = 'Sil';
+  static const String deleteWorkspaceTitle = 'Çalışma Alanını Sil';
+
   // Kelime kategorileri
   static const String allWords = 'Tüm Kelimeler';
   static const String newlyAddedWords = 'Yeni Eklenenler';

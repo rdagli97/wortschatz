@@ -41,7 +41,7 @@ class AiWordController extends Notifier<AiWordState> {
   @override
   AiWordState build() => const AiWordState();
 
-  Future<void> generate(String germanWord) async {
+  Future<void> generate(String germanWord, int workspaceId) async {
     final trimmed = germanWord.trim();
     if (trimmed.isEmpty) return;
 
@@ -56,12 +56,16 @@ class AiWordController extends Notifier<AiWordState> {
       return;
     }
 
-    // Aynı akıştaki manuel eklemeyle aynı kural: tam eşleşen kişisel kelime
-    // zaten varsa API'ye para/istek harcamadan önce durdur. Goethe seed
-    // listeleri ayrı bir alan olduğu için buraya dahil edilmez.
+    // Aynı akıştaki manuel eklemeyle aynı kural: aynı çalışma alanında tam
+    // eşleşen kişisel kelime zaten varsa API'ye para/istek harcamadan önce
+    // durdur. Goethe seed listeleri ayrı bir alan olduğu için buraya dahil
+    // edilmez.
     final existingWords = await ref.read(databaseServiceProvider).getWords();
     final isDuplicate = existingWords.any(
-      (w) => w.level == null && w.word.trim().toLowerCase() == trimmed.toLowerCase(),
+      (w) =>
+          w.level == null &&
+          w.workspaceId == workspaceId &&
+          w.word.trim().toLowerCase() == trimmed.toLowerCase(),
     );
     if (isDuplicate) {
       state = const AiWordState(errorMessage: AppStrings.duplicateWordError);

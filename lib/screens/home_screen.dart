@@ -8,8 +8,8 @@ import '../providers/word_provider.dart';
 import '../widgets/home_menu_button.dart';
 import 'goethe_screen.dart';
 import 'settings_screen.dart';
-import 'word_categories_screen.dart';
 import 'word_type_menu_screen.dart';
+import 'workspaces_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -50,7 +50,7 @@ class HomeScreen extends ConsumerWidget {
                 MaterialPageRoute(
                   builder: (_) => const WordTypeMenuScreen(
                     title: AppStrings.myWorkspace,
-                    wordsDestination: WordCategoriesScreen(),
+                    wordsDestination: WorkspacesScreen(),
                   ),
                 ),
               ),

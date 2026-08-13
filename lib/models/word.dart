@@ -14,6 +14,7 @@ class Word {
   final int correctStreak;           // ardışık doğru bilme sayısı (yanlışta 0'a döner)
   final int reviewCount;             // toplam tekrar (doğru+yanlış) sayısı
   final String? level;               // null = kullanıcının kendi kelimesi, 'A1'/'A2'/'B1' = Goethe listesi
+  final int? workspaceId;            // kişisel kelimenin ait olduğu çalışma alanı (level null ise geçerli)
 
   const Word({
     this.id,
@@ -28,6 +29,7 @@ class Word {
     this.correctStreak = 0,
     this.reviewCount = 0,
     this.level,
+    this.workspaceId,
   });
 
   // Kaç kez tekrar edildiğine ve ardışık doğru sayısına göre kategori
@@ -54,6 +56,7 @@ class Word {
       'correctStreak': correctStreak,
       'reviewCount': reviewCount,
       'level': level,
+      'workspaceId': workspaceId,
     };
   }
 
@@ -72,6 +75,7 @@ class Word {
       correctStreak: map['correctStreak'] as int? ?? 0,
       reviewCount: map['reviewCount'] as int? ?? 0,
       level: map['level'] as String?,
+      workspaceId: map['workspaceId'] as int?,
     );
   }
 }

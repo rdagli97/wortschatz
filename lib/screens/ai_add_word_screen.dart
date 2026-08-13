@@ -12,7 +12,9 @@ import '../widgets/article_selector.dart';
 import 'settings_screen.dart';
 
 class AiAddWordScreen extends ConsumerStatefulWidget {
-  const AiAddWordScreen({super.key});
+  final int workspaceId;
+
+  const AiAddWordScreen({super.key, required this.workspaceId});
 
   @override
   ConsumerState<AiAddWordScreen> createState() => _AiAddWordScreenState();
@@ -57,6 +59,7 @@ class _AiAddWordScreenState extends ConsumerState<AiAddWordScreen> {
   Future<void> _generate() async {
     await ref.read(aiWordControllerProvider.notifier).generate(
           _germanWordController.text,
+          widget.workspaceId,
         );
   }
 
@@ -70,6 +73,7 @@ class _AiAddWordScreenState extends ConsumerState<AiAddWordScreen> {
       exampleSentence: _sentenceController.text.trim(),
       exampleTranslationEn: _translationEnController.text.trim(),
       exampleTranslationTr: _translationTrController.text.trim(),
+      workspaceId: widget.workspaceId,
     );
 
     final success =
