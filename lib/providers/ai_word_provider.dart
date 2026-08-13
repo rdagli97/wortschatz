@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_strings.dart';
+import '../core/utils/german_text.dart';
 import '../models/word.dart';
 import '../services/gemini_service.dart';
 import 'settings_provider.dart';
@@ -60,12 +61,13 @@ class AiWordController extends Notifier<AiWordState> {
     // eşleşen kişisel kelime zaten varsa API'ye para/istek harcamadan önce
     // durdur. Goethe seed listeleri ayrı bir alan olduğu için buraya dahil
     // edilmez.
+    final normalized = stripLeadingGermanArticle(trimmed).toLowerCase();
     final existingWords = await ref.read(databaseServiceProvider).getWords();
     final isDuplicate = existingWords.any(
       (w) =>
           w.level == null &&
           w.workspaceId == workspaceId &&
-          w.word.trim().toLowerCase() == trimmed.toLowerCase(),
+          w.word.trim().toLowerCase() == normalized,
     );
     if (isDuplicate) {
       state = const AiWordState(errorMessage: AppStrings.duplicateWordError);

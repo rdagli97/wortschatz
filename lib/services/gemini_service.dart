@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../core/utils/german_text.dart';
 import '../models/word.dart';
 
 class GeminiApiException implements Exception {
@@ -19,6 +20,11 @@ class GeminiService {
       'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent';
 
   Future<Word> generateWordDetails(String germanWord, String apiKey) async {
+    // Kullanıcı kelimeyi artikeliyle yazmış olabilir (ör. "das Haus"); AI
+    // ayrıca kendi artikelini döndürdüğü için, bunu birleştirmeden önce
+    // baştaki artikeli ayıklamak gerekiyor ("das das Haus" olmasın diye).
+    final cleanedWord = stripLeadingGermanArticle(germanWord);
+
     final response = await http.post(
       Uri.parse(_endpoint),
       headers: {
@@ -32,7 +38,7 @@ class GeminiService {
             'parts': [
               {
                 'text':
-                    'Almanca "$germanWord" kelimesi için A1-A2 seviyesinde bir '
+                    'Almanca "$cleanedWord" kelimesi için A1-A2 seviyesinde bir '
                     'Almanca öğrencisine yardımcı olacak sözlük bilgisi üret. '
                     'Kelime bir isim değilse (fiil, sıfat, zarf vb.) article alanını '
                     'boş string olarak bırak. Plural alanı isim değilse boş string olsun.',
@@ -79,7 +85,7 @@ class GeminiService {
 
     return Word(
       article: (input['article'] as String? ?? '').trim(),
-      word: germanWord.trim(),
+      word: cleanedWord,
       meaningEn: (input['meaningEn'] as String? ?? '').trim(),
       meaningTr: (input['meaningTr'] as String? ?? '').trim(),
       plural: (input['plural'] as String? ?? '').trim(),

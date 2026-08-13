@@ -7,6 +7,7 @@ import '../models/word.dart';
 import '../widgets/home_menu_button.dart';
 import 'add_word_screen.dart';
 import 'ai_add_word_screen.dart';
+import 'bulk_add_word_screen.dart';
 import 'word_list_screen.dart';
 
 class WordCategoriesScreen extends StatelessWidget {
@@ -59,6 +60,22 @@ class WordCategoriesScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => AiAddWordScreen(workspaceId: workspaceId),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSizes.md),
+              HomeMenuButton(
+                label: AppStrings.addWordBulk,
+                subtitle: AppStrings.addWordBulkDesc,
+                icon: Icons.playlist_add,
+                accentColor: AppColors.der,
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BulkAddWordScreen(workspaceId: workspaceId),
                     ),
                   );
                 },

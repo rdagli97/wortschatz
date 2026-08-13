@@ -115,6 +115,23 @@ class AppStrings {
   static const String addWordManualDesc = 'Tüm alanları kendin doldur';
   static const String addWordAi = 'Yapay Zeka ile Ekle';
   static const String addWordAiDesc = 'Sadece kelimeyi yaz, gerisini AI doldursun';
+  static const String addWordBulk = 'Çoklu Kelime Ekle';
+  static const String addWordBulkDesc = 'Virgülle ayırarak birden fazla kelime aynı anda ekle';
+
+  // Çoklu kelime ekleme
+  static const String bulkAddTitle = 'Çoklu Kelime Ekle';
+  static const String bulkAddInputLabel =
+      'Kelimeleri virgülle ayırarak yaz (ör. Haus, gehen, schön)';
+  static const String bulkAddMaxHint =
+      'Ücretsiz Gemini anahtarının dakikalık limiti nedeniyle tek seferde en '
+      'fazla 5 kelime ekleyebilirsin.';
+  static const String bulkAddStart = 'Kelimeleri Ekle';
+  static const String bulkAddDone = 'Bitti';
+  static const String bulkAddStatusAdded = 'Eklendi';
+  static const String bulkAddStatusDuplicate = 'Zaten var';
+  static const String bulkAddStatusError = 'Eklenemedi';
+  static const String bulkAddStatusPending = 'Bekliyor';
+  static const String bulkAddStatusChecking = 'Kontrol ediliyor...';
 
   // Yapay zeka modu
   static const String aiAddWordTitle = 'Yapay Zeka ile Ekle';
