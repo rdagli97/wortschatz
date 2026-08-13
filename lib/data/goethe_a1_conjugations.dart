@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 // Düzenli ve düzensiz A1 fiilleri için şimdiki zaman (Präsens) çekimi üretir.
 // Ayrılabilir fiiller bu kapsamda değil (ayrı bir konu: fiil + ayrılan ek).
 
@@ -17,6 +19,29 @@ class VerbConjugation {
     required this.ihr,
     required this.sieSie,
   });
+
+  // Word.conjugationJson alanında saklamak için
+  String toJson() => jsonEncode({
+        'ich': ich,
+        'du': du,
+        'er': erSieEs,
+        'wir': wir,
+        'ihr': ihr,
+        'sieSie': sieSie,
+      });
+
+  static VerbConjugation? fromJson(String? json) {
+    if (json == null || json.isEmpty) return null;
+    final map = jsonDecode(json) as Map<String, dynamic>;
+    return VerbConjugation(
+      ich: map['ich'] as String? ?? '',
+      du: map['du'] as String? ?? '',
+      erSieEs: map['er'] as String? ?? '',
+      wir: map['wir'] as String? ?? '',
+      ihr: map['ihr'] as String? ?? '',
+      sieSie: map['sieSie'] as String? ?? '',
+    );
+  }
 }
 
 // Kök ünlüsü değişen ya da tamamen düzensiz çekimlenen fiiller: (ich, du, er).

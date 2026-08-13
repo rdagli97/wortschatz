@@ -22,11 +22,15 @@ class WordDetailScreen extends StatelessWidget {
     // Çoğul yalnızca isimler için anlamlı; fiil/bağlaç/diğer kelimelerde
     // (article boş) her zaman boş olduğu için gösterilmez.
     final hasPlural = word.article.isNotEmpty;
+    // Önce kelimede kayıtlı bilgi kullanılır (AI ile eklenmiş ya da seed
+    // edilmiş her kelimede zaten var); yalnızca daha eski, henüz bu alanlarla
+    // güncellenmemiş Goethe kayıtları için statik listeye düşülür.
     final sendsVerbToEnd = word.wordType == 'conjunction'
-        ? conjunctionSendsVerbToEnd(word.word)
+        ? (word.sendsVerbToEnd ?? conjunctionSendsVerbToEnd(word.word))
         : null;
-    final conjugation = conjugatePresentTense(word.word, word.wordType);
-    final objectCase = verbCase(word.word, word.wordType);
+    final conjugation = VerbConjugation.fromJson(word.conjugationJson) ??
+        conjugatePresentTense(word.word, word.wordType);
+    final objectCase = word.verbCase ?? verbCase(word.word, word.wordType);
 
     return Scaffold(
       appBar: AppBar(title: Text(word.word)),

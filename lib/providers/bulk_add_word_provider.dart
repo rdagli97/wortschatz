@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_strings.dart';
 import '../core/utils/german_text.dart';
-import '../data/goethe_a1_word_types.dart';
 import '../models/word.dart';
 import '../services/gemini_service.dart';
 import 'ai_word_provider.dart';
@@ -99,7 +98,7 @@ class BulkAddWordController extends Notifier<BulkAddState> {
       try {
         final generated =
             await ref.read(geminiServiceProvider).generateWordDetails(word, apiKey);
-        await db.insertWord(Word(
+        final toSave = withGoetheGrammar(Word(
           article: generated.article,
           word: generated.word,
           meaningEn: generated.meaningEn,
@@ -109,10 +108,12 @@ class BulkAddWordController extends Notifier<BulkAddState> {
           exampleTranslationEn: generated.exampleTranslationEn,
           exampleTranslationTr: generated.exampleTranslationTr,
           workspaceId: workspaceId,
-          wordType: generated.article.isEmpty
-              ? classifyGoetheWordType(generated.word)
-              : null,
+          wordType: generated.wordType,
+          conjugationJson: generated.conjugationJson,
+          verbCase: generated.verbCase,
+          sendsVerbToEnd: generated.sendsVerbToEnd,
         ));
+        await db.insertWord(toSave);
         addedInBatch.add(normalized);
         _setResult(i, BulkWordResult(word: word, status: BulkWordStatus.added));
       } on GeminiApiException catch (e) {

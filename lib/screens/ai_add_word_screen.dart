@@ -74,6 +74,12 @@ class _AiAddWordScreenState extends ConsumerState<AiAddWordScreen> {
       exampleTranslationEn: _translationEnController.text.trim(),
       exampleTranslationTr: _translationTrController.text.trim(),
       workspaceId: widget.workspaceId,
+      // Kelime türü/çekim/nesne durumu kullanıcı tarafından düzenlenmiyor,
+      // AI'ın (ve varsa doğrulanmış listenin) belirlediği gibi kaydedilir.
+      wordType: generated.wordType,
+      conjugationJson: generated.conjugationJson,
+      verbCase: generated.verbCase,
+      sendsVerbToEnd: generated.sendsVerbToEnd,
     );
 
     final success =

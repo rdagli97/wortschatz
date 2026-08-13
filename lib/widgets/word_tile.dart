@@ -22,7 +22,7 @@ class WordTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sendsVerbToEnd = word.wordType == 'conjunction'
-        ? conjunctionSendsVerbToEnd(word.word)
+        ? (word.sendsVerbToEnd ?? conjunctionSendsVerbToEnd(word.word))
         : null;
 
     return InkWell(

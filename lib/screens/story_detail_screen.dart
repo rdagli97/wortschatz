@@ -4,6 +4,7 @@ import '../core/constants/app_sizes.dart';
 import '../core/constants/app_strings.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
+import '../data/goethe_a1_conjugations.dart';
 import '../models/story.dart';
 import '../models/word.dart';
 import '../models/workspace.dart';
@@ -14,6 +15,9 @@ import '../providers/word_provider.dart';
 import '../providers/workspace_provider.dart';
 import '../services/gemini_service.dart';
 import '../widgets/article_badge.dart';
+import '../widgets/verb_case_badge.dart';
+import '../widgets/verb_conjugation_table.dart';
+import '../widgets/verb_position_badge.dart';
 import 'settings_screen.dart';
 
 // Almanca harf (ä/ö/ü/ß dahil) dizilerini kelime, geri kalanını ayraç sayar.
@@ -184,8 +188,12 @@ class _WordInfoSheetState extends ConsumerState<_WordInfoSheet> {
     }
 
     try {
-      final info =
+      final generated =
           await ref.read(geminiServiceProvider).generateWordDetails(widget.word, apiKey);
+      // Bilinen (doğrulanmış) bir fiil/bağlaçsa AI'ın verdiği bilgiyi
+      // hand-verified veriyle geçersiz kılar; bilinmiyorsa AI'ın kendi
+      // belirlediği tür/çekim/nesne durumu bilgisi olduğu gibi kalır.
+      final info = withGoetheGrammar(generated);
       widget.onResolved(info);
       if (!mounted) return;
       setState(() {
@@ -222,6 +230,10 @@ class _WordInfoSheetState extends ConsumerState<_WordInfoSheet> {
       exampleTranslationEn: info.exampleTranslationEn,
       exampleTranslationTr: info.exampleTranslationTr,
       workspaceId: workspace.id,
+      wordType: info.wordType,
+      conjugationJson: info.conjugationJson,
+      verbCase: info.verbCase,
+      sendsVerbToEnd: info.sendsVerbToEnd,
     );
     final success = await ref.read(addWordControllerProvider.notifier).addWord(word);
     if (!mounted) return;
@@ -237,7 +249,7 @@ class _WordInfoSheetState extends ConsumerState<_WordInfoSheet> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSizes.lg),
         child: _isLoading
             ? const SizedBox(
@@ -276,6 +288,9 @@ class _WordInfoSheetState extends ConsumerState<_WordInfoSheet> {
   }
 
   Widget _buildContent(Word info) {
+    final sendsVerbToEnd = info.wordType == 'conjunction' ? info.sendsVerbToEnd : null;
+    final conjugation = VerbConjugation.fromJson(info.conjugationJson);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,6 +306,22 @@ class _WordInfoSheetState extends ConsumerState<_WordInfoSheet> {
         ),
         const SizedBox(height: AppSizes.xs),
         Text('${info.meaningTr} · ${info.meaningEn}', style: AppTextStyles.caption),
+        if (sendsVerbToEnd != null) ...[
+          const SizedBox(height: AppSizes.sm),
+          VerbPositionBadge(sendsVerbToEnd: sendsVerbToEnd),
+        ],
+        if (conjugation != null) ...[
+          const SizedBox(height: AppSizes.md),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(AppStrings.presentTenseConjugation, style: AppTextStyles.body),
+              if (info.verbCase != null) VerbCaseBadge(verbCase: info.verbCase!),
+            ],
+          ),
+          const SizedBox(height: AppSizes.sm),
+          VerbConjugationTable(conjugation: conjugation),
+        ],
         const SizedBox(height: AppSizes.md),
         if (!_pickingWorkspace)
           SizedBox(

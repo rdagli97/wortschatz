@@ -133,6 +133,16 @@ class AppStrings {
   static const String exampleTranslation = 'Türkçe Çevirisi';
   static const String save = 'Kaydet';
 
+  // Manuel ekleme: kelime türüne göre form
+  static const String wordTypeLabel = 'Kelime Türü';
+  static const String wordTypeNoun = 'İsim / Diğer';
+  static const String wordTypeRegularVerb = 'Düzenli Fiil';
+  static const String wordTypeIrregularVerb = 'Düzensiz Fiil';
+  static const String wordTypeSeparableVerb = 'Ayrılabilir Fiil';
+  static const String wordTypeConjunction = 'Bağlaç';
+  static const String verbCaseSelectLabel = 'Nesne Durumu';
+  static const String verbPositionSelectLabel = 'Cümle Dizilimi';
+
   // Kelime ekleme modu seçimi
   static const String addWordManual = 'Manuel Ekle';
   static const String addWordManualDesc = 'Tüm alanları kendin doldur';

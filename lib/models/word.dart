@@ -15,7 +15,10 @@ class Word {
   final int reviewCount;             // toplam tekrar (doğru+yanlış) sayısı
   final String? level;               // null = kullanıcının kendi kelimesi, 'A1'/'A2'/'B1' = Goethe listesi
   final int? workspaceId;            // kişisel kelimenin ait olduğu çalışma alanı (level null ise geçerli)
-  final String? wordType;            // Goethe kelimeleri için: 'separableVerb'/'irregularVerb'/'regularVerb'/'conjunction', null = Kelimeler
+  final String? wordType;            // 'separableVerb'/'irregularVerb'/'regularVerb'/'conjunction', null = Kelimeler
+  final String? conjugationJson;     // fiilse: {ich,du,er,wir,ihr,sieSie} JSON'u (bkz. VerbConjugation)
+  final String? verbCase;            // fiilse nesne durumu: 'akkusativ'/'dativ'/'akkusativ+dativ'/'nominativ'
+  final bool? sendsVerbToEnd;        // bağlaçsa: fiili cümle sonuna gönderiyor mu
 
   const Word({
     this.id,
@@ -32,10 +35,18 @@ class Word {
     this.level,
     this.workspaceId,
     this.wordType,
+    this.conjugationJson,
+    this.verbCase,
+    this.sendsVerbToEnd,
   });
 
   // Sadece belirtilen alanları değiştirerek yeni bir Word oluşturur
-  Word copyWith({String? wordType}) {
+  Word copyWith({
+    String? wordType,
+    String? conjugationJson,
+    String? verbCase,
+    bool? sendsVerbToEnd,
+  }) {
     return Word(
       id: id,
       article: article,
@@ -51,6 +62,9 @@ class Word {
       level: level,
       workspaceId: workspaceId,
       wordType: wordType ?? this.wordType,
+      conjugationJson: conjugationJson ?? this.conjugationJson,
+      verbCase: verbCase ?? this.verbCase,
+      sendsVerbToEnd: sendsVerbToEnd ?? this.sendsVerbToEnd,
     );
   }
 
@@ -85,6 +99,9 @@ class Word {
       'level': level,
       'workspaceId': workspaceId,
       'wordType': wordType,
+      'conjugationJson': conjugationJson,
+      'verbCase': verbCase,
+      'sendsVerbToEnd': sendsVerbToEnd == null ? null : (sendsVerbToEnd! ? 1 : 0),
     };
   }
 
@@ -105,6 +122,9 @@ class Word {
       level: map['level'] as String?,
       workspaceId: map['workspaceId'] as int?,
       wordType: map['wordType'] as String?,
+      conjugationJson: map['conjugationJson'] as String?,
+      verbCase: map['verbCase'] as String?,
+      sendsVerbToEnd: map['sendsVerbToEnd'] == null ? null : (map['sendsVerbToEnd'] as int) == 1,
     );
   }
 }

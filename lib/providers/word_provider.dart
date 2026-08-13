@@ -1,9 +1,32 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_strings.dart';
+import '../data/goethe_a1_conjugations.dart';
+import '../data/goethe_a1_verb_cases.dart';
 import '../data/goethe_a1_word_types.dart';
 import '../data/goethe_a1_words.dart';
 import '../models/word.dart';
 import '../services/database_service.dart';
+
+// Bir kelime için wordType/çekim/nesne durumu/fiil sırası bilgisini,
+// classifyGoetheWordType'ın tanıdığı ~157 kelimelik doğrulanmış listeye göre
+// hesaplayıp ekler; bu liste elle doğrulandığı için AI'ın döndürdüğü
+// (varsa) değerlerin önüne geçer. Listede olmayan kelimeler (AI'ın kendi
+// belirlediği wordType/çekim/nesne durumu ile) değişmeden kalır. İsimler
+// hiçbir zaman dokunulmaz.
+Word withGoetheGrammar(Word w) {
+  if (w.article.isNotEmpty) return w;
+  final type = classifyGoetheWordType(w.word);
+  if (type == null) return w;
+  if (type == 'conjunction') {
+    return w.copyWith(wordType: type, sendsVerbToEnd: conjunctionSendsVerbToEnd(w.word));
+  }
+  final conjugation = conjugatePresentTense(w.word, type);
+  return w.copyWith(
+    wordType: type,
+    conjugationJson: conjugation?.toJson(),
+    verbCase: verbCase(w.word, type),
+  );
+}
 
 // Varsayılan çalışma alanına örnek olarak eklenen düzenli/düzensiz/ayrılabilir
 // fiiller ile bağlaçlar — Goethe A1 verisinden, zaten dilbilgisi olarak
@@ -31,17 +54,14 @@ final wordsProvider = FutureProvider<List<Word>>((ref) async {
 
 // Goethe A1 listesini bir kere (uygulama her açılışında, tekrarsız olarak)
 // veritabanına yükler. Her kelime, kelimeler/ayrılabilir-düzenli-düzensiz
-// fiiller/bağlaçlar ayrımı için wordType ile etiketlenir. İsimler (article
-// dolu) hiçbir zaman fiil/bağlaç olarak etiketlenmez — "das Essen" (yemek)
-// ile "essen" (yemek yemek) fiili gibi eş sesli kelimeleri karıştırmaz.
-// HomeScreen tarafından tetiklenir.
+// fiiller/bağlaçlar ayrımı için wordType (ve fiil/bağlaçsa çekim/nesne
+// durumu/fiil sırası bilgisiyle) etiketlenir. İsimler (article dolu) hiçbir
+// zaman fiil/bağlaç olarak etiketlenmez — "das Essen" (yemek) ile "essen"
+// (yemek yemek) fiili gibi eş sesli kelimeleri karıştırmaz. HomeScreen
+// tarafından tetiklenir.
 final goetheSeedProvider = FutureProvider<void>((ref) async {
   final db = ref.read(databaseServiceProvider);
-  final classifiedWords = goetheA1Words()
-      .map((w) => w.copyWith(
-            wordType: w.article.isEmpty ? classifyGoetheWordType(w.word) : null,
-          ))
-      .toList();
+  final classifiedWords = goetheA1Words().map(withGoetheGrammar).toList();
   await db.insertWordsIfAbsent(classifiedWords);
   ref.invalidate(wordsProvider);
 });
@@ -62,7 +82,7 @@ final defaultWorkspaceSeedProvider = FutureProvider<void>((ref) async {
 
   final seedWords = goetheA1Words()
       .where((w) => _defaultWorkspaceSeedWordNames.contains(w.word.toLowerCase()))
-      .map((w) => Word(
+      .map((w) => withGoetheGrammar(Word(
             article: w.article,
             word: w.word,
             meaningEn: w.meaningEn,
@@ -72,8 +92,7 @@ final defaultWorkspaceSeedProvider = FutureProvider<void>((ref) async {
             exampleTranslationEn: w.exampleTranslationEn,
             exampleTranslationTr: w.exampleTranslationTr,
             workspaceId: workspaceId,
-            wordType: classifyGoetheWordType(w.word),
-          ))
+          )))
       .toList();
 
   final inserted = await db.insertWordsIfAbsentForWorkspace(workspaceId, seedWords);
@@ -123,10 +142,9 @@ class AddWordController extends Notifier<AddWordState> {
       }
 
       // Artikeli olmayan (AI ile eklenmiş) kelime bilinen bir fiil/bağlaçsa
-      // otomatik olarak ilgili türle etiketlenir; bilinmiyorsa Kelimeler'de kalır.
-      final classified = word.article.isEmpty
-          ? word.copyWith(wordType: classifyGoetheWordType(word.word))
-          : word;
+      // doğrulanmış wordType/çekim/nesne durumu bilgisiyle etiketlenir;
+      // bilinmiyorsa AI'ın kendi belirlediği bilgiler (varsa) korunur.
+      final classified = word.article.isEmpty ? withGoetheGrammar(word) : word;
 
       await db.insertWord(classified);
       // Kelime listesini yenile (yeni kelime görünsün)

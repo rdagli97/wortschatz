@@ -22,7 +22,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 7,
+      version: 8,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE workspaces(
@@ -71,7 +71,10 @@ class DatabaseService {
             reviewCount INTEGER NOT NULL DEFAULT 0,
             level TEXT,
             workspaceId INTEGER,
-            wordType TEXT
+            wordType TEXT,
+            conjugationJson TEXT,
+            verbCase TEXT,
+            sendsVerbToEnd INTEGER
           )
         ''');
 
@@ -140,6 +143,11 @@ class DatabaseService {
             )
           ''');
         }
+        if (oldVersion < 8) {
+          await db.execute('ALTER TABLE words ADD COLUMN conjugationJson TEXT');
+          await db.execute('ALTER TABLE words ADD COLUMN verbCase TEXT');
+          await db.execute('ALTER TABLE words ADD COLUMN sendsVerbToEnd INTEGER');
+        }
       },
     );
   }
@@ -188,13 +196,15 @@ class DatabaseService {
   // SEED - Goethe listelerini yükler; aynı seviyede aynı kelime zaten varsa
   // atlar (seeder birden fazla kez çalıştırılsa da kelimeler çoğalmaz).
   // Eşleştirme büyük/küçük harfe duyarlıdır: "Essen" (isim) ile "essen"
-  // (fiil) gibi eş sesli kelimeler birbirine karışmaz. Daha önce eklenmiş
-  // ama wordType'ı yanlış ya da boş kalmış kelimeler varsa (örn. kelime türü
-  // sınıflandırması sonradan eklendiyse/düzeltildiyse) bu alan geriye dönük
+  // (fiil) gibi eş sesli kelimeler birbirine karışmaz. Daha önce eklenmiş ama
+  // wordType/çekim/nesne durumu bilgisi yanlış ya da boş kalmış kelimeler
+  // varsa (örn. bu alanlar sonradan eklendiyse/düzeltildiyse) geriye dönük
   // olarak güncellenir.
   Future<int> insertWordsIfAbsent(List<Word> words) async {
     final db = await _db;
-    final existing = await db.query('words', columns: ['id', 'word', 'level', 'wordType']);
+    final existing = await db.query('words', columns: [
+      'id', 'word', 'level', 'wordType', 'conjugationJson', 'verbCase', 'sendsVerbToEnd',
+    ]);
     final existingByKey = {
       for (final row in existing)
         '${(row['word'] as String).trim()}|${row['level'] as String? ?? ''}': row,
@@ -208,10 +218,24 @@ class DatabaseService {
       if (existingRow == null) {
         batch.insert('words', word.toMap());
         inserted++;
-      } else if (existingRow['wordType'] != word.wordType) {
+        continue;
+      }
+
+      final wordSendsVerbToEnd =
+          word.sendsVerbToEnd == null ? null : (word.sendsVerbToEnd! ? 1 : 0);
+      final needsUpdate = existingRow['wordType'] != word.wordType ||
+          existingRow['conjugationJson'] != word.conjugationJson ||
+          existingRow['verbCase'] != word.verbCase ||
+          existingRow['sendsVerbToEnd'] != wordSendsVerbToEnd;
+      if (needsUpdate) {
         batch.update(
           'words',
-          {'wordType': word.wordType},
+          {
+            'wordType': word.wordType,
+            'conjugationJson': word.conjugationJson,
+            'verbCase': word.verbCase,
+            'sendsVerbToEnd': wordSendsVerbToEnd,
+          },
           where: 'id = ?',
           whereArgs: [existingRow['id']],
         );
@@ -223,24 +247,50 @@ class DatabaseService {
 
   // SEED - bir çalışma alanına, orada aynı isimde kelime yoksa ekler
   // (büyük/küçük harfe duyarlı eşleştirme, ör. "Essen"/"essen" karışmasın).
+  // Daha önce eklenmiş ama wordType/çekim/nesne durumu bilgisi eksik kalmış
+  // kelimeler varsa geriye dönük olarak güncellenir.
   Future<int> insertWordsIfAbsentForWorkspace(int workspaceId, List<Word> words) async {
     final db = await _db;
     final existing = await db.query(
       'words',
-      columns: ['word'],
+      columns: ['id', 'word', 'wordType', 'conjugationJson', 'verbCase', 'sendsVerbToEnd'],
       where: 'workspaceId = ? AND level IS NULL',
       whereArgs: [workspaceId],
     );
-    final existingWords = existing.map((row) => (row['word'] as String).trim()).toSet();
+    final existingByWord = {
+      for (final row in existing) (row['word'] as String).trim(): row,
+    };
 
     var inserted = 0;
     final batch = db.batch();
     for (final word in words) {
       final key = word.word.trim();
-      if (existingWords.contains(key)) continue;
-      existingWords.add(key);
-      batch.insert('words', word.toMap());
-      inserted++;
+      final existingRow = existingByWord[key];
+      if (existingRow == null) {
+        batch.insert('words', word.toMap());
+        inserted++;
+        continue;
+      }
+
+      final wordSendsVerbToEnd =
+          word.sendsVerbToEnd == null ? null : (word.sendsVerbToEnd! ? 1 : 0);
+      final needsUpdate = existingRow['wordType'] != word.wordType ||
+          existingRow['conjugationJson'] != word.conjugationJson ||
+          existingRow['verbCase'] != word.verbCase ||
+          existingRow['sendsVerbToEnd'] != wordSendsVerbToEnd;
+      if (needsUpdate) {
+        batch.update(
+          'words',
+          {
+            'wordType': word.wordType,
+            'conjugationJson': word.conjugationJson,
+            'verbCase': word.verbCase,
+            'sendsVerbToEnd': wordSendsVerbToEnd,
+          },
+          where: 'id = ?',
+          whereArgs: [existingRow['id']],
+        );
+      }
     }
     await batch.commit(noResult: true);
     return inserted;

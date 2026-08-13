@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../core/utils/german_text.dart';
+import '../data/goethe_a1_conjugations.dart';
 import '../models/word.dart';
 
 class GeneratedStory {
@@ -47,8 +48,36 @@ class GeminiService {
                 'text':
                     'Almanca "$cleanedWord" kelimesi için A1-A2 seviyesinde bir '
                     'Almanca öğrencisine yardımcı olacak sözlük bilgisi üret. '
+                    'Eğer bu bir fiilin çekimlenmiş/çekilmiş hali ise (ör. "ging", '
+                    '"gegangen", "ist", "wäscht"), word alanına mastar (infinitiv) '
+                    'halini yaz (ör. "gehen", "sein", "waschen"); isimse ya da '
+                    'zaten sözlük/temel haldeyse olduğu gibi bırak (sadece doğru '
+                    'büyük/küçük harf kullanımını düzelt). '
                     'Kelime bir isim değilse (fiil, sıfat, zarf vb.) article alanını '
-                    'boş string olarak bırak. Plural alanı isim değilse boş string olsun.',
+                    'boş string olarak bırak. Plural alanı isim değilse boş string '
+                    'olsun. '
+                    'wordType alanına kelimenin türünü yaz: fiilse ve ayrılabilir '
+                    '(trennbar) bir fiilse "separableVerb", düzensiz/güçlü çekimli '
+                    'bir fiilse "irregularVerb", düzenli/zayıf çekimli bir fiilse '
+                    '"regularVerb"; bağlaçsa (weil/und/dass gibi) "conjunction"; '
+                    'isim ya da bunların dışında bir tür ise (sıfat, zarf, edat, '
+                    'soru kelimesi vb.) "none". '
+                    'Fiilse conjugationIch/conjugationDu/conjugationEr/'
+                    'conjugationWir/conjugationIhr/conjugationSieSie alanlarına '
+                    'şimdiki zaman (Präsens) çekimlerini yaz (ör. "gehen" için: '
+                    'gehe/gehst/geht/gehen/geht/gehen; dönüşlü (reflexiv) bir '
+                    'fiilse doğru dönüşlü zamiri de ekle, ör. "sich waschen" için '
+                    '"wasche mich"/"wäschst dich"/"wäscht sich"/"waschen uns"/'
+                    '"wascht euch"/"waschen sich"). '
+                    'Fiilse verbCase alanına nesne durumunu yaz: sadece Akkusativ '
+                    'nesne alıyorsa "akkusativ", sadece Dativ alıyorsa "dativ", '
+                    'ikisini birden alıyorsa "akkusativ+dativ", hiç nesne '
+                    'almıyorsa "nominativ". Fiil değilse conjugation alanlarını '
+                    've verbCase alanını boş string bırak. '
+                    'Bağlaçsa sendsVerbToEnd alanına, bu bağlacın bulunduğu yan '
+                    'cümlede fiili sona gönderip göndermediğini yaz (weil/dass/'
+                    'wenn/obwohl gibi bağlaçlar için true; und/aber/oder/denn '
+                    'gibi bağlaçlar için false). Bağlaç değilse false yaz.',
               },
             ],
           },
@@ -90,15 +119,54 @@ class GeminiService {
 
     final input = jsonDecode(parts.first['text'] as String) as Map<String, dynamic>;
 
+    final resolvedWord = (input['word'] as String? ?? '').trim();
+    final finalWord = resolvedWord.isEmpty ? cleanedWord : resolvedWord;
+
+    final rawWordType = (input['wordType'] as String? ?? '').trim();
+    final wordType =
+        (rawWordType.isEmpty || rawWordType == 'none') ? null : rawWordType;
+
+    String? conjugationJson;
+    String? verbCaseValue;
+    if (wordType == 'separableVerb' ||
+        wordType == 'irregularVerb' ||
+        wordType == 'regularVerb') {
+      final ich = (input['conjugationIch'] as String? ?? '').trim();
+      final du = (input['conjugationDu'] as String? ?? '').trim();
+      final er = (input['conjugationEr'] as String? ?? '').trim();
+      final wir = (input['conjugationWir'] as String? ?? '').trim();
+      final ihr = (input['conjugationIhr'] as String? ?? '').trim();
+      final sieSie = (input['conjugationSieSie'] as String? ?? '').trim();
+      if (ich.isNotEmpty && du.isNotEmpty && er.isNotEmpty) {
+        conjugationJson = VerbConjugation(
+          ich: ich,
+          du: du,
+          erSieEs: er,
+          wir: wir.isEmpty ? finalWord : wir,
+          ihr: ihr.isEmpty ? finalWord : ihr,
+          sieSie: sieSie.isEmpty ? finalWord : sieSie,
+        ).toJson();
+      }
+      final rawCase = (input['verbCase'] as String? ?? '').trim();
+      verbCaseValue = rawCase.isEmpty ? null : rawCase;
+    }
+
+    final sendsVerbToEnd =
+        wordType == 'conjunction' ? (input['sendsVerbToEnd'] as bool? ?? false) : null;
+
     return Word(
       article: (input['article'] as String? ?? '').trim(),
-      word: cleanedWord,
+      word: finalWord,
       meaningEn: (input['meaningEn'] as String? ?? '').trim(),
       meaningTr: (input['meaningTr'] as String? ?? '').trim(),
       plural: (input['plural'] as String? ?? '').trim(),
       exampleSentence: (input['exampleSentence'] as String? ?? '').trim(),
       exampleTranslationEn: (input['exampleTranslationEn'] as String? ?? '').trim(),
       exampleTranslationTr: (input['exampleTranslationTr'] as String? ?? '').trim(),
+      wordType: wordType,
+      conjugationJson: conjugationJson,
+      verbCase: verbCaseValue,
+      sendsVerbToEnd: sendsVerbToEnd,
     );
   }
 
@@ -374,6 +442,12 @@ quotes, or emojis anywhere.''',
   static const _wordDetailsSchema = {
     'type': 'OBJECT',
     'properties': {
+      'word': {
+        'type': 'STRING',
+        'description':
+            'Kelimenin sözlük/mastar hali (fiil çekimli girildiyse infinitiv '
+            'hali, değilse olduğu gibi)',
+      },
       'article': {
         'type': 'STRING',
         'description': 'der, die, das veya isim değilse boş string',
@@ -396,8 +470,51 @@ quotes, or emojis anywhere.''',
         'type': 'STRING',
         'description': 'Örnek cümlenin Türkçe çevirisi',
       },
+      'wordType': {
+        'type': 'STRING',
+        'description':
+            "'separableVerb' (ayrılabilir fiil), 'irregularVerb' (düzensiz "
+            "fiil), 'regularVerb' (düzenli fiil), 'conjunction' (bağlaç) ya "
+            "da hiçbiri değilse 'none'",
+      },
+      'conjugationIch': {
+        'type': 'STRING',
+        'description': "Fiilse şimdiki zaman 'ich' çekimi, değilse boş string",
+      },
+      'conjugationDu': {
+        'type': 'STRING',
+        'description': "Fiilse 'du' çekimi, değilse boş string",
+      },
+      'conjugationEr': {
+        'type': 'STRING',
+        'description': "Fiilse 'er/sie/es' çekimi, değilse boş string",
+      },
+      'conjugationWir': {
+        'type': 'STRING',
+        'description': "Fiilse 'wir' çekimi, değilse boş string",
+      },
+      'conjugationIhr': {
+        'type': 'STRING',
+        'description': "Fiilse 'ihr' çekimi, değilse boş string",
+      },
+      'conjugationSieSie': {
+        'type': 'STRING',
+        'description': "Fiilse 'sie/Sie' çekimi, değilse boş string",
+      },
+      'verbCase': {
+        'type': 'STRING',
+        'description':
+            "Fiilse nesne durumu: 'akkusativ', 'dativ', 'akkusativ+dativ' "
+            "ya da nesne almıyorsa 'nominativ'; fiil değilse boş string",
+      },
+      'sendsVerbToEnd': {
+        'type': 'BOOLEAN',
+        'description':
+            'Bağlaçsa fiili yan cümlenin sonuna gönderiyor mu, değilse false',
+      },
     },
     'required': [
+      'word',
       'article',
       'plural',
       'meaningEn',
@@ -405,6 +522,15 @@ quotes, or emojis anywhere.''',
       'exampleSentence',
       'exampleTranslationEn',
       'exampleTranslationTr',
+      'wordType',
+      'conjugationIch',
+      'conjugationDu',
+      'conjugationEr',
+      'conjugationWir',
+      'conjugationIhr',
+      'conjugationSieSie',
+      'verbCase',
+      'sendsVerbToEnd',
     ],
   };
 }
