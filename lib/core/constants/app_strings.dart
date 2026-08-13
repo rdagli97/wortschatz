@@ -33,6 +33,32 @@ class AppStrings {
   static const String noWordsYet = 'Henüz kelime yok. İlk kelimeni ekle!';
   static const String duplicateWordError = 'Bu kelime zaten listende var.';
 
+  // Alıştırma (Tekrar Et / Test Modu seçimi)
+  static const String exercise = 'Alıştırma';
+  static const String exerciseModeSheetTitle = 'Nasıl çalışmak istersin?';
+  static const String exercisePracticeTitle = 'Tekrar Et';
+  static const String exercisePracticeDesc = 'Kartları çevirerek gözden geçir';
+  static const String exerciseTestTitle = 'Test Modu';
+  static const String exerciseTestDesc = 'Almancasını yazarak kendini sına';
+
+  // Test modu kurulumu
+  static const String testSetupTitle = 'Test Modu';
+  static const String testSetupWordCountQuestion =
+      'Kaç kelimeden sınav olmak istiyorsun?';
+  static const String testSetupStart = 'Başla';
+
+  // Test modu (soru ekranı)
+  static const String testWriteHint = 'Almancasını yaz';
+  static const String testSeeResult = 'Sonucu Gör';
+  static const String testNoArticle = '— (isim değil)';
+
+  // Test sonucu
+  static const String testResultTitle = 'Sonuç';
+  static const String testResultCorrectSuffix = 'doğru cevap';
+  static const String testResultYourAnswer = 'Senin cevabın';
+  static const String testResultDone = 'Bitti';
+  static const String testResultRetryWrong = 'Yanlışları Test Et';
+
   // Kelime detayı
   static const String categoryNew = 'Yeni';
   static const String categoryDifficult = 'Zorlanılan';
