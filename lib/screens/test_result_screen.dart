@@ -61,7 +61,7 @@ class TestResultScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.push(
+                      onPressed: () => Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (_) => TestModeScreen(
