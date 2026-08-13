@@ -64,12 +64,7 @@ class HomeScreen extends ConsumerWidget {
               accentColor: AppColors.das,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const WordTypeMenuScreen(
-                    title: AppStrings.goethe,
-                    wordsDestination: GoetheScreen(),
-                  ),
-                ),
+                MaterialPageRoute(builder: (_) => const GoetheScreen()),
               ),
             ),
             const SizedBox(height: AppSizes.md),

@@ -59,6 +59,10 @@ class AppStrings {
       'Henüz bir hikaye okumadın. Yukarıdan yeni bir tane oluştur!';
   static const String storyComingSoon = 'Bu seviye için hikaye üretimi henüz eklenmedi.';
   static const String storyDone = 'Bitti';
+  static const String storyTapHint =
+      'Kelimelere dokun: anlamını gör, çalışma alanına ekle.';
+  static const String storyWordAddButton = 'Çalışma Alanına Ekle';
+  static const String storyWordPickWorkspace = 'Hangi çalışma alanına eklemek istersin?';
 
   // Çalışma alanları (Benim Çalışma Alanım altındaki koleksiyonlar)
   static const String defaultWorkspaceName = 'Varsayılan Çalışma Alanı';

@@ -17,7 +17,7 @@ class GoetheScreen extends ConsumerWidget {
     final words = wordsAsync.value ?? const <Word>[];
 
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.words)),
+      appBar: AppBar(title: const Text(AppStrings.goethe)),
       body: Padding(
         padding: const EdgeInsets.all(AppSizes.md),
         child: Column(
