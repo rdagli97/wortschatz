@@ -16,9 +16,10 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Goethe A1 listesini ve varsayılan çalışma alanının örnek fiil/bağlaç
+    // Goethe A1/A2 listelerini ve varsayılan çalışma alanının örnek fiil/bağlaç
     // kelimelerini bir kere, tekrarsız olarak veritabanına yükler.
     ref.watch(goetheSeedProvider);
+    ref.watch(goetheA2SeedProvider);
     ref.watch(defaultWorkspaceSeedProvider);
 
     return Scaffold(

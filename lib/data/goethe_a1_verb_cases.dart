@@ -10,12 +10,14 @@
 const _dativOnlyVerbs = {
   'antworten', 'danken', 'fehlen', 'gehören', 'glauben', 'gratulieren',
   'schmecken', 'gefallen', 'helfen',
+  'passen',
 };
 
 // Hem Dativ (kime/kimin için) hem Akkusativ (neyi) alan fiiller
 const _dativAndAkkusativVerbs = {
   'erklären', 'erlauben', 'erzählen', 'schicken', 'verkaufen', 'vermieten',
   'bringen', 'empfehlen', 'geben', 'überweisen',
+  'schenken', 'wünschen', 'beschreiben',
 };
 
 // Nesne almayan (geçişsiz, sadece Nominativ - özne) fiiller
@@ -26,6 +28,12 @@ const _nominativOnlyVerbs = {
   'bleiben', 'fahren', 'fliegen', 'gehen', 'heißen', 'kommen', 'laufen',
   'riechen', 'scheinen', 'schlafen', 'schwimmen', 'sein', 'sitzen', 'stehen',
   'werden',
+  // A2'ye özgü, nesnesiz kullanılan fiiller
+  'chatten', 'fotografieren', 'hoffen', 'husten', 'joggen', 'kündigen',
+  'parken', 'passieren', 'schimpfen', 'schneien', 'trainieren', 'träumen',
+  'üben', 'berichten', 'fallen', 'hängen', 'reiten', 'sterben', 'denken',
+  'ärgern', 'beschweren', 'erinnern', 'fühlen', 'informieren', 'interessieren',
+  'verletzen', 'verlieben', 'bewerben', 'streiten', 'unterhalten',
 };
 
 // Geri kalan tüm düzenli/düzensiz fiiller Akkusativ alır (varsayılan, en

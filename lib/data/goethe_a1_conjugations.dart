@@ -68,6 +68,14 @@ const _irregularOverrides = <String, (String, String, String)>{
   'haben': ('habe', 'hast', 'hat'),
   'werden': ('werde', 'wirst', 'wird'),
   'wissen': ('weiß', 'weißt', 'weiß'),
+  // A2'ye özgü kök ünlüsü değişen fiiller
+  'sterben': ('sterbe', 'stirbst', 'stirbt'),
+  'fallen': ('falle', 'fällst', 'fällt'),
+  'braten': ('brate', 'brätst', 'brät'),
+  'beraten': ('berate', 'berätst', 'berät'),
+  'unternehmen': ('unternehme', 'unternimmst', 'unternimmt'),
+  'bewerben': ('bewerbe', 'bewirbst', 'bewirbt'),
+  'unterhalten': ('unterhalte', 'unterhältst', 'unterhält'),
 };
 
 // Kökü ünsüz kümesi + m/n ile biten (öffnen, regnen gibi) ve bu yüzden

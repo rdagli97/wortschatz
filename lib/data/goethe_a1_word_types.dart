@@ -19,6 +19,13 @@ const _separableVerbsA1 = {
   'umziehen',
   'weg sein', 'weh tun',
   'zu sein',
+  // A2'ye özgü ayrılabilir fiiller
+  'ansehen', 'aufmachen', 'aufpassen', 'aufräumen',
+  'ausgeben', 'ausgehen', 'auspacken', 'aussprechen', 'austragen',
+  'einpacken', 'einziehen',
+  'herstellen', 'herunterladen',
+  'sich ausruhen', 'sich eintragen', 'sich umziehen',
+  'stattfinden', 'teilnehmen', 'umsteigen', 'vorbereiten', 'wehtun', 'zuhören',
 };
 
 // Düzensiz fiiller (güçlü/karışık çekimli fiiller)
@@ -38,6 +45,14 @@ const _irregularVerbsA1 = {
   'überweisen', 'unterschreiben',
   'verstehen',
   'werden', 'wissen', 'wollen',
+  // A2'ye özgü düzensiz fiiller
+  'beraten', 'beschreiben', 'bestehen', 'braten',
+  'denken', 'fallen', 'hängen',
+  'reiten',
+  'schneiden', 'sterben',
+  'unternehmen',
+  'vergleichen', 'verlieren', 'verschieben',
+  'sich bewerben', 'sich streiten', 'sich unterhalten',
 };
 
 // Düzenli fiiller (zayıf çekimli fiiller)
@@ -62,10 +77,33 @@ const _regularVerbsA1 = {
   'verdienen', 'verkaufen', 'vermieten',
   'wandern', 'warten', 'wiederholen', 'wohnen',
   'zahlen',
+  // A2'ye özgü düzenli fiiller
+  'beenden', 'begründen', 'berichten', 'bestätigen', 'buchen',
+  'chatten',
+  'diskutieren',
+  'erreichen',
+  'fotografieren',
+  'hoffen', 'husten',
+  'joggen',
+  'kündigen',
+  'meinen', 'merken',
+  'notieren',
+  'organisieren',
+  'packen', 'parken', 'passen', 'passieren', 'planen', 'probieren',
+  'renovieren', 'reservieren',
+  'sammeln', 'schaffen', 'schenken', 'schimpfen', 'schneien', 'speichern',
+  'stören',
+  'tauschen', 'teilen', 'trainieren', 'träumen',
+  'üben', 'übersetzen', 'untersuchen',
+  'vereinbaren', 'verpassen', 'verreisen', 'versuchen',
+  'wählen', 'wechseln', 'wecken', 'wünschen',
+  'zeichnen',
+  'sich ärgern', 'sich beschweren', 'sich erinnern', 'sich fühlen',
+  'sich informieren', 'sich interessieren', 'sich verletzen', 'sich verlieben',
 };
 
 // Bağlaçlar (bu listede yer alan, tartışmasız bağlaç olan kelimeler)
-const _conjunctionsA1 = {'und', 'oder', 'aber', 'denn'};
+const _conjunctionsA1 = {'und', 'oder', 'aber', 'denn', 'dass', 'weil', 'wenn'};
 
 // Almanca'da fiili yan cümlenin sonuna gönderen yan cümle bağlaçları
 // (unterordnende Konjunktionen). Bu, bağlaç sınıflandırmasından (_conjunctionsA1)

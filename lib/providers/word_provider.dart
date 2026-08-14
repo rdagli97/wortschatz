@@ -4,6 +4,7 @@ import '../data/goethe_a1_conjugations.dart';
 import '../data/goethe_a1_verb_cases.dart';
 import '../data/goethe_a1_word_types.dart';
 import '../data/goethe_a1_words.dart';
+import '../data/goethe_a2_words.dart';
 import '../models/word.dart';
 import '../services/database_service.dart';
 
@@ -62,6 +63,14 @@ final wordsProvider = FutureProvider<List<Word>>((ref) async {
 final goetheSeedProvider = FutureProvider<void>((ref) async {
   final db = ref.read(databaseServiceProvider);
   final classifiedWords = goetheA1Words().map(withGoetheGrammar).toList();
+  await db.insertWordsIfAbsent(classifiedWords);
+  ref.invalidate(wordsProvider);
+});
+
+// Goethe A2 listesini de aynı şekilde (A1'e ek olarak, tekrarsız) yükler.
+final goetheA2SeedProvider = FutureProvider<void>((ref) async {
+  final db = ref.read(databaseServiceProvider);
+  final classifiedWords = goetheA2Words().map(withGoetheGrammar).toList();
   await db.insertWordsIfAbsent(classifiedWords);
   ref.invalidate(wordsProvider);
 });
