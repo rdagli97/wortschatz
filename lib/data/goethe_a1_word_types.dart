@@ -1,7 +1,11 @@
+import 'goethe_b1_word_types.dart';
+
 // A1 kelime listesindeki artikelsiz kelimelerin (fiil/bağlaç) sınıflandırması.
 // article'ı olan kelimeler zaten isim olduğu için burada yer almaz; burada
 // sınıflandırılmayan (null dönen) her kelime "Kelimeler" sekmesinde kalır
 // (isimler, soru kelimeleri, sıfat/zarflar, edatlar vb.).
+// B1'e özgü sınıflandırma için goethe_b1_word_types.dart'a bakın; aşağıdaki
+// classifyGoetheWordType/conjunctionSendsVerbToEnd bu iki seviyeyi birleştirir.
 
 // Ayrılabilir fiiller (trennbare Verben)
 const _separableVerbsA1 = {
@@ -119,10 +123,18 @@ const _subordinatingConjunctions = {
 // tüm kelimeler için null döner (bunlar "Kelimeler" sekmesinde kalır).
 String? classifyGoetheWordType(String word) {
   final normalized = word.trim().toLowerCase();
-  if (_conjunctionsA1.contains(normalized)) return 'conjunction';
-  if (_separableVerbsA1.contains(normalized)) return 'separableVerb';
-  if (_irregularVerbsA1.contains(normalized)) return 'irregularVerb';
-  if (_regularVerbsA1.contains(normalized)) return 'regularVerb';
+  if (_conjunctionsA1.contains(normalized) || conjunctionsB1.contains(normalized)) {
+    return 'conjunction';
+  }
+  if (_separableVerbsA1.contains(normalized) || separableVerbsB1.contains(normalized)) {
+    return 'separableVerb';
+  }
+  if (_irregularVerbsA1.contains(normalized) || irregularVerbsB1.contains(normalized)) {
+    return 'irregularVerb';
+  }
+  if (_regularVerbsA1.contains(normalized) || regularVerbsB1.contains(normalized)) {
+    return 'regularVerb';
+  }
   return null;
 }
 
@@ -130,6 +142,8 @@ String? classifyGoetheWordType(String word) {
 // Bağlaç olarak sınıflandırılmamış kelimeler için null döner.
 bool? conjunctionSendsVerbToEnd(String word) {
   final normalized = word.trim().toLowerCase();
-  if (!_conjunctionsA1.contains(normalized)) return null;
+  if (!_conjunctionsA1.contains(normalized) && !conjunctionsB1.contains(normalized)) {
+    return null;
+  }
   return _subordinatingConjunctions.contains(normalized);
 }

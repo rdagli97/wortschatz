@@ -5,6 +5,7 @@ import '../data/goethe_a1_verb_cases.dart';
 import '../data/goethe_a1_word_types.dart';
 import '../data/goethe_a1_words.dart';
 import '../data/goethe_a2_words.dart';
+import '../data/goethe_b1_words.dart';
 import '../models/word.dart';
 import '../services/database_service.dart';
 
@@ -53,59 +54,49 @@ final wordsProvider = FutureProvider<List<Word>>((ref) async {
   return ref.watch(databaseServiceProvider).getWords();
 });
 
-// Goethe A1 listesini bir kere (uygulama her açılışında, tekrarsız olarak)
-// veritabanına yükler. Her kelime, kelimeler/ayrılabilir-düzenli-düzensiz
-// fiiller/bağlaçlar ayrımı için wordType (ve fiil/bağlaçsa çekim/nesne
-// durumu/fiil sırası bilgisiyle) etiketlenir. İsimler (article dolu) hiçbir
-// zaman fiil/bağlaç olarak etiketlenmez — "das Essen" (yemek) ile "essen"
-// (yemek yemek) fiili gibi eş sesli kelimeleri karıştırmaz. HomeScreen
-// tarafından tetiklenir.
+// Goethe A1/A2/B1 listelerini ve varsayılan çalışma alanının örnek fiil/bağlaç
+// kelimelerini bir kere (uygulama her açılışında, tekrarsız olarak) veritabanına
+// yükler. Her kelime, kelimeler/ayrılabilir-düzenli-düzensiz fiiller/bağlaçlar
+// ayrımı için wordType (ve fiil/bağlaçsa çekim/nesne durumu/fiil sırası
+// bilgisiyle) etiketlenir. İsimler (article dolu) hiçbir zaman fiil/bağlaç
+// olarak etiketlenmez — "das Essen" (yemek) ile "essen" (yemek yemek) fiili
+// gibi eş sesli kelimeleri karıştırmaz.
+// Adımlar sırayla (paralel değil) çalıştırılır: aynı sqflite veritabanına eş
+// zamanlı birden fazla büyük batch commit edilmeye çalışılması, emulator/cihaz
+// üzerinde uygulamayı sessizce (hatasız, CPU %0'da) kilitleyebiliyor —
+// HomeScreen tarafından tek bir provider olarak izlenir.
 final goetheSeedProvider = FutureProvider<void>((ref) async {
   final db = ref.read(databaseServiceProvider);
-  final classifiedWords = goetheA1Words().map(withGoetheGrammar).toList();
-  await db.insertWordsIfAbsent(classifiedWords);
-  ref.invalidate(wordsProvider);
-});
 
-// Goethe A2 listesini de aynı şekilde (A1'e ek olarak, tekrarsız) yükler.
-final goetheA2SeedProvider = FutureProvider<void>((ref) async {
-  final db = ref.read(databaseServiceProvider);
-  final classifiedWords = goetheA2Words().map(withGoetheGrammar).toList();
-  await db.insertWordsIfAbsent(classifiedWords);
-  ref.invalidate(wordsProvider);
-});
+  await db.insertWordsIfAbsent(goetheA1Words().map(withGoetheGrammar).toList());
+  await db.insertWordsIfAbsent(goetheA2Words().map(withGoetheGrammar).toList());
+  await db.insertWordsIfAbsent(goetheB1Words().map(withGoetheGrammar).toList());
 
-// Varsayılan çalışma alanına, "Düzenli/Düzensiz/Ayrılabilir Fiiller" ve
-// "Bağlaçlar" bölümlerinin boş görünmemesi için örnek kelimeler ekler.
-// Kullanıcı bunları silebilir; sadece daha önce eklenmemişse eklenir.
-// HomeScreen tarafından tetiklenir.
-final defaultWorkspaceSeedProvider = FutureProvider<void>((ref) async {
-  final db = ref.read(databaseServiceProvider);
   final workspaces = await db.getWorkspaces();
   final workspaceId = workspaces
       .where((w) => w.isDefault)
       .map((w) => w.id)
       .whereType<int>()
       .firstOrNull;
-  if (workspaceId == null) return;
+  if (workspaceId != null) {
+    final seedWords = goetheA1Words()
+        .where((w) => _defaultWorkspaceSeedWordNames.contains(w.word.toLowerCase()))
+        .map((w) => withGoetheGrammar(Word(
+              article: w.article,
+              word: w.word,
+              meaningEn: w.meaningEn,
+              meaningTr: w.meaningTr,
+              plural: w.plural,
+              exampleSentence: w.exampleSentence,
+              exampleTranslationEn: w.exampleTranslationEn,
+              exampleTranslationTr: w.exampleTranslationTr,
+              workspaceId: workspaceId,
+            )))
+        .toList();
+    await db.insertWordsIfAbsentForWorkspace(workspaceId, seedWords);
+  }
 
-  final seedWords = goetheA1Words()
-      .where((w) => _defaultWorkspaceSeedWordNames.contains(w.word.toLowerCase()))
-      .map((w) => withGoetheGrammar(Word(
-            article: w.article,
-            word: w.word,
-            meaningEn: w.meaningEn,
-            meaningTr: w.meaningTr,
-            plural: w.plural,
-            exampleSentence: w.exampleSentence,
-            exampleTranslationEn: w.exampleTranslationEn,
-            exampleTranslationTr: w.exampleTranslationTr,
-            workspaceId: workspaceId,
-          )))
-      .toList();
-
-  final inserted = await db.insertWordsIfAbsentForWorkspace(workspaceId, seedWords);
-  if (inserted > 0) ref.invalidate(wordsProvider);
+  ref.invalidate(wordsProvider);
 });
 
 // Kelime ekleme işleminin durumu

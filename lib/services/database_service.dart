@@ -211,37 +211,50 @@ class DatabaseService {
     };
 
     var inserted = 0;
-    final batch = db.batch();
+    // Tek bir dev batch (ör. B1'in ~1750 kelimesi) platform channel/Binder
+    // taşıma boyutunu aşıp sessizce donabiliyor; bu yüzden parçalar halinde
+    // commit ediyoruz.
+    const chunkSize = 200;
+    var batch = db.batch();
+    var opsInBatch = 0;
     for (final word in words) {
       final key = '${word.word.trim()}|${word.level ?? ''}';
       final existingRow = existingByKey[key];
       if (existingRow == null) {
         batch.insert('words', word.toMap());
         inserted++;
-        continue;
+        opsInBatch++;
+      } else {
+        final wordSendsVerbToEnd =
+            word.sendsVerbToEnd == null ? null : (word.sendsVerbToEnd! ? 1 : 0);
+        final needsUpdate = existingRow['wordType'] != word.wordType ||
+            existingRow['conjugationJson'] != word.conjugationJson ||
+            existingRow['verbCase'] != word.verbCase ||
+            existingRow['sendsVerbToEnd'] != wordSendsVerbToEnd;
+        if (needsUpdate) {
+          batch.update(
+            'words',
+            {
+              'wordType': word.wordType,
+              'conjugationJson': word.conjugationJson,
+              'verbCase': word.verbCase,
+              'sendsVerbToEnd': wordSendsVerbToEnd,
+            },
+            where: 'id = ?',
+            whereArgs: [existingRow['id']],
+          );
+          opsInBatch++;
+        }
       }
-
-      final wordSendsVerbToEnd =
-          word.sendsVerbToEnd == null ? null : (word.sendsVerbToEnd! ? 1 : 0);
-      final needsUpdate = existingRow['wordType'] != word.wordType ||
-          existingRow['conjugationJson'] != word.conjugationJson ||
-          existingRow['verbCase'] != word.verbCase ||
-          existingRow['sendsVerbToEnd'] != wordSendsVerbToEnd;
-      if (needsUpdate) {
-        batch.update(
-          'words',
-          {
-            'wordType': word.wordType,
-            'conjugationJson': word.conjugationJson,
-            'verbCase': word.verbCase,
-            'sendsVerbToEnd': wordSendsVerbToEnd,
-          },
-          where: 'id = ?',
-          whereArgs: [existingRow['id']],
-        );
+      if (opsInBatch >= chunkSize) {
+        await batch.commit(noResult: true);
+        batch = db.batch();
+        opsInBatch = 0;
       }
     }
-    await batch.commit(noResult: true);
+    if (opsInBatch > 0) {
+      await batch.commit(noResult: true);
+    }
     return inserted;
   }
 
