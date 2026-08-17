@@ -96,6 +96,30 @@ final goetheSeedProvider = FutureProvider<void>((ref) async {
     await db.insertWordsIfAbsentForWorkspace(workspaceId, seedWords);
   }
 
+  // Kullanıcının Goethe seed dışında (AI ile hikaye/toplu/manuel ekleme)
+  // eklediği kelimeler için sınıflandırma kurallarındaki geriye dönük
+  // güncellemeleri uygular (ör. "dann" gibi bağlayıcı zarfların artık
+  // Bağlaçlar'a düşmesi). Sadece gerçekten değişen kelimeler güncellenir.
+  final allWords = await db.getWords();
+  for (final w in allWords) {
+    final id = w.id;
+    if (w.article.isNotEmpty || id == null) continue;
+    final reclassified = withGoetheGrammar(w);
+    final changed = reclassified.wordType != w.wordType ||
+        reclassified.conjugationJson != w.conjugationJson ||
+        reclassified.verbCase != w.verbCase ||
+        reclassified.sendsVerbToEnd != w.sendsVerbToEnd;
+    if (changed) {
+      await db.updateWordGrammar(
+        id,
+        wordType: reclassified.wordType,
+        conjugationJson: reclassified.conjugationJson,
+        verbCase: reclassified.verbCase,
+        sendsVerbToEnd: reclassified.sendsVerbToEnd,
+      );
+    }
+  }
+
   ref.invalidate(wordsProvider);
 });
 

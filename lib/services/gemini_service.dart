@@ -59,9 +59,12 @@ class GeminiService {
                     'wordType alanına kelimenin türünü yaz: fiilse ve ayrılabilir '
                     '(trennbar) bir fiilse "separableVerb", düzensiz/güçlü çekimli '
                     'bir fiilse "irregularVerb", düzenli/zayıf çekimli bir fiilse '
-                    '"regularVerb"; bağlaçsa (weil/und/dass gibi) "conjunction"; '
-                    'isim ya da bunların dışında bir tür ise (sıfat, zarf, edat, '
-                    'soru kelimesi vb.) "none". '
+                    '"regularVerb"; bağlaçsa (weil/und/dass gibi) VEYA gramer olarak '
+                    'zarf olsa da pratikte cümleleri anlamca bağlayan bir "bağlayıcı '
+                    'zarf" (Konjunktionaladverb) ise (dann/trotzdem/deshalb/daher/'
+                    'allerdings/jedoch/außerdem/andererseits gibi) "conjunction"; '
+                    'isim ya da bunların dışında bir tür ise (sıradan zarf, sıfat, '
+                    'edat, soru kelimesi vb.) "none". '
                     'Fiilse conjugationIch/conjugationDu/conjugationEr/'
                     'conjugationWir/conjugationIhr/conjugationSieSie alanlarına '
                     'şimdiki zaman (Präsens) çekimlerini yaz (ör. "gehen" için: '
@@ -77,7 +80,8 @@ class GeminiService {
                     'Bağlaçsa sendsVerbToEnd alanına, bu bağlacın bulunduğu yan '
                     'cümlede fiili sona gönderip göndermediğini yaz (weil/dass/'
                     'wenn/obwohl gibi bağlaçlar için true; und/aber/oder/denn '
-                    'gibi bağlaçlar için false). Bağlaç değilse false yaz.',
+                    'gibi bağlaçlar ve dann/trotzdem/deshalb gibi bağlayıcı '
+                    'zarflar için false). Bağlaç değilse false yaz.',
               },
             ],
           },

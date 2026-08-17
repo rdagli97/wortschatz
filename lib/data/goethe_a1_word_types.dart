@@ -109,6 +109,14 @@ const _regularVerbsA1 = {
 // Bağlaçlar (bu listede yer alan, tartışmasız bağlaç olan kelimeler)
 const _conjunctionsA1 = {'und', 'oder', 'aber', 'denn', 'dass', 'weil', 'wenn'};
 
+// Gramer olarak zarf (Konjunktionaladverb) olan ama pratikte cümleleri
+// bağlayan/ilişkilendiren kelimeler — kullanıcı deneyimi için Bağlaçlar
+// sekmesine dahil edilir (fiili sona göndermezler, ikinci sıraya iterler).
+const _connectorAdverbs = {
+  'dann', 'trotzdem', 'deshalb', 'daher', 'allerdings', 'jedoch',
+  'außerdem', 'andererseits',
+};
+
 // Almanca'da fiili yan cümlenin sonuna gönderen yan cümle bağlaçları
 // (unterordnende Konjunktionen). Bu, bağlaç sınıflandırmasından (_conjunctionsA1)
 // bağımsız, saf bir dilbilgisi kuralı listesidir; ileride A2/B1 ile birlikte
@@ -123,7 +131,9 @@ const _subordinatingConjunctions = {
 // tüm kelimeler için null döner (bunlar "Kelimeler" sekmesinde kalır).
 String? classifyGoetheWordType(String word) {
   final normalized = word.trim().toLowerCase();
-  if (_conjunctionsA1.contains(normalized) || conjunctionsB1.contains(normalized)) {
+  if (_conjunctionsA1.contains(normalized) ||
+      conjunctionsB1.contains(normalized) ||
+      _connectorAdverbs.contains(normalized)) {
     return 'conjunction';
   }
   if (_separableVerbsA1.contains(normalized) || separableVerbsB1.contains(normalized)) {
@@ -142,7 +152,9 @@ String? classifyGoetheWordType(String word) {
 // Bağlaç olarak sınıflandırılmamış kelimeler için null döner.
 bool? conjunctionSendsVerbToEnd(String word) {
   final normalized = word.trim().toLowerCase();
-  if (!_conjunctionsA1.contains(normalized) && !conjunctionsB1.contains(normalized)) {
+  if (!_conjunctionsA1.contains(normalized) &&
+      !conjunctionsB1.contains(normalized) &&
+      !_connectorAdverbs.contains(normalized)) {
     return null;
   }
   return _subordinatingConjunctions.contains(normalized);

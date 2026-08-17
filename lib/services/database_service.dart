@@ -165,6 +165,33 @@ class DatabaseService {
     return maps.map((map) => Word.fromMap(map)).toList();
   }
 
+  // UPDATE - bir kelimenin dilbilgisi sınıflandırmasını (wordType/çekim/
+  // nesne durumu/fiil sırası) günceller. Kullanıcının Goethe seed dışında
+  // (AI ile hikaye/toplu ekleme, manuel ekleme) eklediği kelimeler için,
+  // sınıflandırma kurallarındaki geriye dönük güncellemeleri uygulamak
+  // amacıyla kullanılır (ör. "dann" gibi bağlayıcı zarfların artık
+  // Bağlaçlar'a düşmesi).
+  Future<void> updateWordGrammar(
+    int id, {
+    required String? wordType,
+    required String? conjugationJson,
+    required String? verbCase,
+    required bool? sendsVerbToEnd,
+  }) async {
+    final db = await _db;
+    await db.update(
+      'words',
+      {
+        'wordType': wordType,
+        'conjugationJson': conjugationJson,
+        'verbCase': verbCase,
+        'sendsVerbToEnd': sendsVerbToEnd == null ? null : (sendsVerbToEnd ? 1 : 0),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   // DELETE - kelime sil
   Future<int> deleteWord(int id) async {
     final db = await _db;
